@@ -18,6 +18,7 @@ BUGS
 - 4. disable events after Basecamp? checkbox
 - 5. Fix the breakage when you export whilst a timestamp is active.
 6. Import does not allow the "remove timestamp" functionality. (events missing?)
+7. CSS issue with Find button on Win/OSX... inconsistant padding due to spec. char.
 
 
 

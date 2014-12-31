@@ -78,7 +78,7 @@ var TK = {
 	addRecord: function(id, name, total, done) {
 		//this.record_name.value, 0, false
 		// default values
-		id = id || new Date().getTime();
+		id = id || this.guid();
 		name = name || this.record_name.value;
 		total = total || 0;
 		done = (done === true) ? true : false;
@@ -128,8 +128,8 @@ var TK = {
 			this.admin_output.children[3].innerHTML = this.formatActual(this.admin_time);
 		}
 		else {
-			var r = Number(id.split('.')[0]);
-			var t = Number(id.split('.')[1]);
+			var r = id.split('||')[0];
+			var t = id.split('||')[1];
 
 			for (var i = 0; i < this.records.length; i++) {
 				if (this.records[i].id === r) r = i;
@@ -530,6 +530,14 @@ var TK = {
 	pad: function(n) { // add a leading zero to the passed number
 		return n<10 ? '0'+n : n;
 	},
+	guid: (function() {
+		function s4() {
+			return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+		}
+		return function() {
+			return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+		};
+	})(),
 	decodeEntities: (function() {
 		// this prevents any overhead from creating the object each time
 		var element = document.createElement('div');
@@ -642,7 +650,7 @@ Record.prototype.render = function() {
 Record.prototype.openTimestamp = function(id, from, to, difference, active) {
 
 	// default values
-	id = id || new Date().getTime();
+	id = id || this.parent.guid();
 	from = from || new Date();
 	to = to || undefined;
 	difference = difference || 0;
@@ -653,7 +661,7 @@ Record.prototype.openTimestamp = function(id, from, to, difference, active) {
 
 	if (active === true) {
 		this.parent.admin_output.classList.remove('active');
-		this.parent.active = String(this.id)+'.'+String(id);
+		this.parent.active = this.id+'||'+id
 	}
 };
 Record.prototype.closeTimestamp = function() {

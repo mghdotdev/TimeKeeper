@@ -35,7 +35,7 @@ input {
 		color:#fff;
 	}
 	.toolbar #record_find {
-		padding:2px 8px;
+		/*padding:2px 8px; windows only? */
 	}
 	.toolbar #record_add:focus, .toolbar #record_find:focus {
 		background-color:#fff;
