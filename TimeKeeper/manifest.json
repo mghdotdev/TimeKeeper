@@ -1,0 +1,12 @@
+{
+  "name": "TimeKeeper for Miva",
+  "description": "Keep track of your hours for clients and admin time.",
+  "version": "0.1",
+  "manifest_version": 2,
+  "app": {
+    "background": {
+      "scripts": ["js/background.js"]
+    }
+  },
+  "icons": { "16": "icons/tk-16.png", "128": "icons/tk-128.png" }
+}

@@ -1,0 +1,26 @@
+TODO
+----------------------
+! 1. remove record functionality
+2. selective import
+- 3. visual change for checked Basecamp? records
+- 4. once error message for empty record -> focus back on the Record Name input
+- 5. add download message to PDF download button
+- 6. click .fade div to close() message box
+- 7. add 75% width to the h1.name field
+! 8. make a new Basecamp? button / checkbox
+!! 9. Finish "remove timestamp" functionality.
+
+BUGS
+----------------------
+- 1. "Empty Record Name" alert, if not valid [a-z0-9] it says record input is empty. BUT its not
+- 2. Basecamp? checkbox not loading from import
+- 3. allow text to be selectable in-app
+- 4. disable events after Basecamp? checkbox
+- 5. Fix the breakage when you export whilst a timestamp is active.
+6. Import does not allow the "remove timestamp" functionality. (events missing?)
+
+
+
+
+-------------------------------
+- = done | ! = important
