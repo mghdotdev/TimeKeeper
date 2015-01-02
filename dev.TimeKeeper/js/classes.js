@@ -592,6 +592,7 @@ Record.prototype.render = function() {
 			var input_open = document.createElement('input');
 				input_open.type = 'button';
 				input_open.value = '+ Open';
+				input_open.title = 'Open new Timestamp';
 				input_open.classList.add('open_btn');
 				input_open.onclick = function(e) {
 					if (this.active === false && this.parent.active === false) {
@@ -606,6 +607,7 @@ Record.prototype.render = function() {
 			var input_delete = document.createElement('input');
 				input_delete.type = 'button';
 				input_delete.value = '- Delete';
+				input_delete.title = 'Delete selected Timestamps';
 				input_delete.classList.add('delete_btn');
 				input_delete.disabled = 'true';
 				input_delete.onclick = function(e) {
@@ -613,9 +615,33 @@ Record.prototype.render = function() {
 					this.deleteTimestamps();
 				
 				}.bind(this);
+			var div_doneWrap = document.createElement('div');
+				div_doneWrap.classList.add('done-wrap');
+
+					var label = document.createElement('label');
+						label.innerHTML = 'In Basecamp?';
+					var input_checkbox = document.createElement('input');
+						input_checkbox.type = 'checkbox';
+						input_checkbox.title = 'Yes/No Exported to Basecamp';
+						input_checkbox.onchange = function(e) {
+
+							if (e.target.checked === true) {
+								this.el.classList.add('done');
+								this.done = true;
+							}
+							else {
+								this.el.classList.remove('done');
+								this.done = false;
+							}
+
+						}.bind(this);
+
+				div_doneWrap.appendChild(label);
+				div_doneWrap.appendChild(input_checkbox);
 
 			div_actions.appendChild(input_open);
 			div_actions.appendChild(input_delete);
+			div_actions.appendChild(div_doneWrap);
 
 		var div_timestamps = document.createElement('div');
 			div_timestamps.classList.add('timestamps');

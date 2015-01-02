@@ -46,7 +46,7 @@ input {
 		color:#000;
 	}
 
-.import_wrap {
+.import-wrap {
 	text-align: center;
 }
 .import {
@@ -104,38 +104,29 @@ hr {
 			position: relative;
 		}
 	
-		.record.checked {
+		.record.done {
 			background-color:#d6ffda;
 		}
 
 		.record .name {
 			-webkit-user-select: text;
 		}
-		
-		.done {
-			position: absolute;
-			right:15px;
-			top:20px;
-			vertical-align: bottom;
-		}
-			.done input {
-				height: 18px;
-				width: 18px;
-			}
-			.done label {
-				vertical-align: top;
-				margin-right:5px;
-				color:#666;
-			}
 
 		.actions {
 			padding:10px 0;
+			position: relative;
 		}
 			.actions input {
 				margin-left:5px;
 			}
 			.actions input:first-child {
 				margin-left:0;
+			}
+
+			.actions .done-wrap {
+				position: absolute;
+				right: 0;
+				top:13px;
 			}
 
 		.timestamp {
