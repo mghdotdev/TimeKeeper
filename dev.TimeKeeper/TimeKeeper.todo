@@ -1,14 +1,17 @@
 TODO
 ----------------------
-! 1. remove record functionality
-2. selective import
+!!! 1. remove record functionality
+- 2. selective import
 - 3. visual change for checked Basecamp? records
 - 4. once error message for empty record -> focus back on the Record Name input
 - 5. add download message to PDF download button
 - 6. click .fade div to close() message box
 - 7. add 75% width to the h1.name field
 - 8. make a new Basecamp? button / checkbox
-- 9. Finish "remove timestamp" functionality.
+- 9. Finish "remove timestamp" functionality
+10. Re-evaluate the Find / Add toolbar... (Design AND functionality)
+11. When a Timestamp is opened, add an error box when trying to open a new Timestamp
+12. Add warning dialog for Timestamp delete
 
 BUGS
 ----------------------
@@ -19,7 +22,7 @@ BUGS
 - 5. Fix the breakage when you export whilst a timestamp is active.
 - 6. Import does not allow the "remove timestamp" functionality. (events missing?)
 7. CSS issue with Find button on Win/OSX... inconsistant padding due to spec. character
-8. Fix issue with "Find" function not working due to new GUID update
+- 8. Fix issue with "Find" function not working due to new GUID update
 
 
 

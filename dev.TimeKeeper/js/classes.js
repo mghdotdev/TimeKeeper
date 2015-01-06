@@ -75,20 +75,22 @@ var TK = {
 	},
 
 	// *ADDING / REMOVING NEW RECORDS
-	addRecord: function(id, name, total, done) {
+	addRecord: function(guid, name, total, done) {
 		//this.record_name.value, 0, false
 		// default values
-		id = id || this.guid();
+		guid = guid || this.guid();
 		name = name || this.record_name.value;
 		total = total || 0;
 		done = (done === true) ? true : false;
 
-		var record = new Record(id, name, total, done, this);
+		var record = new Record(guid, name, total, done, this);
 		this.records.push(record);
 	},
-	removeRecord: function(id) {
-		// TODO: implement remove record functionality.
+	removeRecord: function(guid) {
+
+		var id = this.getRecordID(guid);
 		this.records.splice(id, 1);
+
 	}, // *end
 	findRecord: function(name) {
 		// Clear all highlights
@@ -99,8 +101,8 @@ var TK = {
 		var id;
 		for (var i = 0; i < this.records.length; i++) {
 			if (this.records[i].name.toLowerCase() === name) {
-				id = this.records[i].id;
-				continue;
+				id = i;
+				break;
 			}
 		}
 		var e = this.records[id].el;
@@ -132,9 +134,9 @@ var TK = {
 			var t = id.split('||')[1];
 
 			for (var i = 0; i < this.records.length; i++) {
-				if (this.records[i].id === r) r = i;
+				if (this.records[i].guid === r) r = i;
 				for (var j = 0; j < this.records[i].timestamps.length; j++) {
-					if (this.records[i].timestamps[j].id === t) t = j;
+					if (this.records[i].timestamps[j].guid === t) t = j;
 				}
 			}
 
@@ -263,11 +265,11 @@ var TK = {
 				for (var i = 0; i < data.records.length; i++) {
 					if (selectedRecords.indexOf(String(i)) === -1) continue;
 
-					this.addRecord(data.records[i].id, data.records[i].name, data.records[i].total, data.records[i].done);
+					this.addRecord(data.records[i].guid, data.records[i].name, data.records[i].total, data.records[i].done);
 					var r_id = this.records.length - 1;
 
 					for (var j = 0; j < data.records[i].timestamps.length; j++) {
-						this.records[r_id].openTimestamp(data.records[i].timestamps[j].id, new Date(data.records[i].timestamps[j].from), new Date(data.records[i].timestamps[j].to), data.records[i].timestamps[j].difference, false);
+						this.records[r_id].openTimestamp(data.records[i].timestamps[j].guid, new Date(data.records[i].timestamps[j].from), new Date(data.records[i].timestamps[j].to), data.records[i].timestamps[j].difference, false);
 					}
 				}
 			}.bind(this),
@@ -406,7 +408,7 @@ var TK = {
 
 			var record = {};
 
-			record.id = this.records[i].id;
+			record.guid = this.records[i].guid;
 			record.name = this.records[i].name;
 			record.total = this.records[i].total;
 			record.done = this.records[i].done;
@@ -415,7 +417,7 @@ var TK = {
 
 				var timestamp = {};
 
-				timestamp.id = this.records[i].timestamps[j].id;
+				timestamp.guid = this.records[i].timestamps[j].guid;
 				timestamp.from = this.records[i].timestamps[j].from.getTime();
 				timestamp.to = this.records[i].timestamps[j].to.getTime();
 				timestamp.difference = this.records[i].timestamps[j].difference;
@@ -538,6 +540,13 @@ var TK = {
 			return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 		};
 	})(),
+	getRecordID: function(guid) {
+		for (var i = 0; i < this.records.length; i++) {
+			if (this.records[i].guid === guid) {
+				return i;
+			}
+		}
+	},
 	decodeEntities: (function() {
 		// this prevents any overhead from creating the object each time
 		var element = document.createElement('div');
@@ -559,8 +568,8 @@ var TK = {
 TK.init();
 
 // Record Class
-function Record(id, name, total, done, parent) {
-	this.id = id;
+function Record(guid, name, total, done, parent) {
+	this.guid = guid;
 	this.parent = parent;
 	this.name = name;
 	this.timestamps = [];
@@ -580,7 +589,7 @@ Record.prototype.render = function() {
 		if (this.done === true) {
 			div_record.classList.add('checked');
 		}
-		div_record.dataset.recordId = this.id;
+		div_record.dataset.recordId = this.guid;
 
 		var h1_name = document.createElement('h1');
 			h1_name.classList.add('name');
@@ -673,21 +682,21 @@ Record.prototype.render = function() {
 	this.timestamp_output = div_timestamps;
 	
 };
-Record.prototype.openTimestamp = function(id, from, to, difference, active) {
+Record.prototype.openTimestamp = function(guid, from, to, difference, active) {
 
 	// default values
-	id = id || this.parent.guid();
+	guid = guid || this.parent.guid();
 	from = from || new Date();
 	to = to || undefined;
 	difference = difference || 0;
 	active = (active === false) ? false : true;
 
-	var timestamp = new Timestamp(id, from, to, difference, active, this);
+	var timestamp = new Timestamp(guid, from, to, difference, active, this);
 	this.timestamps.push(timestamp);
 
 	if (active === true) {
 		this.parent.admin_output.classList.remove('active');
-		this.parent.active = this.id+'||'+id
+		this.parent.active = this.guid+'||'+guid
 	}
 };
 Record.prototype.closeTimestamp = function() {
@@ -709,22 +718,22 @@ Record.prototype.closeTimestamp = function() {
 	}
 
 };
+Record.prototype.getTimestampID = function(guid) {
+	for (var i = 0; i < this.timestamps.length; i++) {
+		if (this.timestamps[i].guid === guid) {
+			return i;
+		}
+	}
+};
 Record.prototype.deleteTimestamps = function() {
 	
 	var totalMinus = 0;
-	for (var i = 0; i < this.timestamps.length; i++) {
-		var ts_id = this.timestamps[i].id;
-		for (var j = 0; j < this.selectedTimestamps.length; j++) {
-			if (ts_id === this.selectedTimestamps[j]) {
-				this.timestamps[i].el.remove();
-				totalMinus += this.timestamps[i].difference;
-				this.timestamps[i] = undefined;
-			}
-		}
+	for (var i = 0; i < this.selectedTimestamps.length; i++) {
+		var id = this.getTimestampID(this.selectedTimestamps[i]);
+		this.timestamps[id].el.remove();
+		totalMinus += this.timestamps[id].difference;
+		this.timestamps.splice(id, 1);
 	}
-
-	// remove empty records
-	this.timestamps = this.timestamps.filter(function(n){ return n != undefined });
 
 	// clear selectedTimestamps array
 	this.selectedTimestamps = [];
@@ -742,8 +751,8 @@ Record.prototype.deleteTimestamps = function() {
 
 
 // Timestamp Class
-function Timestamp(id, from, to, difference, active, parent) {
-	this.id = id;
+function Timestamp(guid, from, to, difference, active, parent) {
+	this.guid = guid;
 	this.parent = parent;
 	this.from = from;
 	this.to = to;
@@ -770,17 +779,17 @@ Timestamp.prototype.render = function() {
 	// html template
 	var div_time = document.createElement('div');
 		div_time.classList.add('timestamp');
-		div_time.dataset.timestampId = this.id;
+		div_time.dataset.timestampId = this.guid;
 
 		var input_checkbox = document.createElement('input');
 			input_checkbox.classList.add('select');
 			input_checkbox.type = 'checkbox';
 			input_checkbox.onchange = function(e) {
 
-				var index = this.parent.selectedTimestamps.indexOf(this.id);
+				var index = this.parent.selectedTimestamps.indexOf(this.guid);
 
 				if (e.target.checked === true) {
-					this.parent.selectedTimestamps.push(this.id);
+					this.parent.selectedTimestamps.push(this.guid);
 				}
 				else {
 					this.parent.selectedTimestamps.splice(index, 1);
