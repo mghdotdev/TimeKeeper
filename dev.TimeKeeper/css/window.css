@@ -22,6 +22,41 @@ input {
 	font-family: monospace;
 }
 
+/* Welcome Box */
+.welcome {
+	padding:15px !important;
+}
+.welcome p {
+	padding:5px 0;
+	font-size:12px;
+}
+.welcome .start-options {
+	text-align: center;
+	padding:10px 0;
+}
+.welcome em {
+	font-size:12px;
+	color: #999;
+}
+
+.welcome em:before, .welcome em:after {
+	content: " _______________ ";
+	position: relative;
+	top: -5px;
+}
+.welcome h2 {
+	padding:5px 0;
+}
+/* Welcome Box */
+
+.records .content-block:last-child {
+	display: none;
+}
+.records .content-block:first-child {
+	display: block;
+}
+
+
 .toolbar {
 	padding:10px;
 	background-color:#F42434;
