@@ -15,6 +15,7 @@ TODO
 ? 13. Add reset sheet / restyle css
 - 14. Add dates to Timestamps (style ex: @Jan 7, 2015)
 15. Change title attribute of "In Basecamp?" checkbox
+16. Add Welcome Message
 
 BUGS
 ----------------------
@@ -27,6 +28,7 @@ BUGS
 7. CSS issue with Find button on Win/OSX... inconsistant padding due to spec. character
 - 8. Fix issue with "Find" function not working due to new GUID update
 9. "In Basecamp?" Button not carrying style over for re-imported record.
+10. Fix issue of either overwriting the records array or appending it... display appends | class overwrites
 
 
 
