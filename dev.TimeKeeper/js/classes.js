@@ -765,11 +765,14 @@ function Timestamp(guid, from, to, difference, active, parent) {
 }
 Timestamp.prototype.render = function() {
 
+	var from = this.parent.parent.pad(this.from.getHours())+':'+this.parent.parent.pad(this.from.getMinutes());
 	var to = '...';
 	if (this.to !== undefined) {
 		to = this.parent.parent.pad(this.to.getHours())+':'+this.parent.parent.pad(this.to.getMinutes());
 	}
-	var from = this.parent.parent.pad(this.from.getHours())+':'+this.parent.parent.pad(this.from.getMinutes());
+
+	var abbrMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+	var date = abbrMonthNames[this.from.getMonth()] + ', ' + this.from.getDate() + ' ' + this.from.getFullYear();
 
 	var active = 'active';
 	if (this.active === false) {
@@ -811,6 +814,9 @@ Timestamp.prototype.render = function() {
 			span_to.classList.add('to');
 			if (this.active !== false) span_to.classList.add(active);
 			span_to.innerHTML = to;
+		var span_date = document.createElement('span');
+			span_date.classList.add('date');
+			span_date.innerHTML = date;
 		var span_difference = document.createElement('span');
 			span_difference.classList.add('difference');
 
@@ -829,6 +835,7 @@ Timestamp.prototype.render = function() {
 	}
 	div_time.appendChild(span_from);
 	div_time.appendChild(span_to);
+	div_time.appendChild(span_date);
 	div_time.appendChild(span_difference);
 
 	var prevNode = this.parent.timestamp_output.children[0];
