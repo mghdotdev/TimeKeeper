@@ -13,7 +13,7 @@ TODO
 11. When a Timestamp is opened, add an error box when trying to open a new Timestamp
 12. Add warning dialog for Timestamp delete
 ? 13. Add reset sheet / restyle css
-14. Add dates to Timestamps (style ex: @Jan 7, 2015)
+- 14. Add dates to Timestamps (style ex: @Jan 7, 2015)
 
 BUGS
 ----------------------
@@ -25,7 +25,7 @@ BUGS
 - 6. Import does not allow the "remove timestamp" functionality. (events missing?)
 7. CSS issue with Find button on Win/OSX... inconsistant padding due to spec. character
 - 8. Fix issue with "Find" function not working due to new GUID update
-
+9. "In Basecamp?" Button not carrying style over for re-imported record.
 
 
 
