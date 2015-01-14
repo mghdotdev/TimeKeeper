@@ -70,6 +70,7 @@ input {
 	.toolbar #record_add, .toolbar #record_find {
 		background-color:#000;
 		color:#fff;
+		line-height: 15px;
 	}
 	.toolbar #record_find {
 		/*padding:2px 8px; windows only? */
