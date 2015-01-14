@@ -13,8 +13,8 @@ var TK = {
 	record_output: document.getElementById('record_output'),
 	admin_output: document.getElementById('admin'),
 	record_uploader_json: document.getElementById('uploaderJSON'),
-	record_import_json: document.getElementById('importJSON'),
-	record_export_pdf: document.getElementById('exportPDF'),
+	// record_import_json: document.getElementById('importJSON'),
+	// record_export_pdf: document.getElementById('exportPDF'),
 	record_export_json: document.getElementById('exportJSON'),
 
 	// functions
@@ -60,13 +60,17 @@ var TK = {
 			this.update(this.active);
 		}.bind(this), 1000);
 
-		this.record_import_json.onclick = function(e) {
+		/*this.record_import_json.onclick = function(e) {
+			this.importJSON();
+		}.bind(this);*/
+
+		this.record_uploader_json.onchange = function(e) {
 			this.importJSON();
 		}.bind(this);
 
-		this.record_export_pdf.onclick = function(e) {
+		/*this.record_export_pdf.onclick = function(e) {
 			this.exportToPDF();
-		}.bind(this);
+		}.bind(this);*/
 
 		this.record_export_json.onclick = function(e) {
 			this.exportToJSON();
@@ -260,7 +264,7 @@ var TK = {
 				}
 
 				if (selectedRecords.indexOf('a') !== -1) this.admin_time = data.admin_time;
-				this.records = [];
+				//this.records = [];
 
 				for (var i = 0; i < data.records.length; i++) {
 					if (selectedRecords.indexOf(String(i)) === -1) continue;
@@ -281,7 +285,7 @@ var TK = {
 
 	},
 
-	exportToPDF: function() {
+	/*exportToPDF: function() {
 		var pdf = new jsPDF();
 		var now = new Date();
 
@@ -374,7 +378,7 @@ var TK = {
 			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "tk_export_MM-DD-YYYY.pdf".'
 		);
 
-	},
+	},*/
 
 	exportToJSON: function() {
 
@@ -587,7 +591,7 @@ Record.prototype.render = function() {
 		div_record.classList.add('record');
 		div_record.classList.add('content-block');
 		if (this.done === true) {
-			div_record.classList.add('checked');
+			div_record.classList.add('done');
 		}
 		div_record.dataset.recordId = this.guid;
 
@@ -631,7 +635,10 @@ Record.prototype.render = function() {
 						label.innerHTML = 'In Basecamp?';
 					var input_checkbox = document.createElement('input');
 						input_checkbox.type = 'checkbox';
-						input_checkbox.title = 'Yes/No Exported to Basecamp';
+						input_checkbox.title = 'Yes/No Entered in Basecamp';
+						if (this.done === true) {
+							input_checkbox.checked = true;
+						}
 						input_checkbox.onchange = function(e) {
 
 							if (e.target.checked === true) {
