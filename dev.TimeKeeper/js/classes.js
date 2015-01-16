@@ -412,7 +412,7 @@ var TK = {
 
 			var record = {};
 
-			record.guid = this.records[i].guid;
+			//record.guid = this.records[i].guid; // REMOVED To prevent duplicate entries
 			record.name = this.records[i].name;
 			record.total = this.records[i].total;
 			record.done = this.records[i].done;
@@ -421,7 +421,7 @@ var TK = {
 
 				var timestamp = {};
 
-				timestamp.guid = this.records[i].timestamps[j].guid;
+				// timestamp.guid = this.records[i].timestamps[j].guid; // REMOVED To prevent duplicate entries
 				timestamp.from = this.records[i].timestamps[j].from.getTime();
 				timestamp.to = this.records[i].timestamps[j].to.getTime();
 				timestamp.difference = this.records[i].timestamps[j].difference;

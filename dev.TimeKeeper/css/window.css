@@ -38,9 +38,7 @@ input {
 }
 
 .welcome em:before, .welcome em:after {
-	content: " _______________ ";
-	position: relative;
-	top: -5px;
+	content: " ––––––––––––––– ";
 }
 .welcome h2 {
 	padding:5px 0;
@@ -64,14 +62,11 @@ input {
 		border:none;
 		outline:none;
 		padding:5px 8px;
+		line-height: 15px;
 	}
 	.toolbar #record_add, .toolbar #record_find {
 		background-color:#000;
 		color:#fff;
-		line-height: 15px;
-	}
-	.toolbar #record_find {
-		/*padding:2px 8px; windows only? */
 	}
 	.toolbar #record_add:focus, .toolbar #record_find:focus {
 		background-color:#fff;
@@ -96,6 +91,7 @@ input {
 	font-size:10px;
 	margin:10px auto;
 }
+
 hr {
 	margin:10px 0;
 	display: block;

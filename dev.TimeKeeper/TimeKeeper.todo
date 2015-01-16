@@ -12,7 +12,7 @@ TODO
 ? 10. Re-evaluate the Find / Add toolbar... (Design AND functionality)
 11. When a Timestamp is opened, add an error box when trying to open a new Timestamp
 12. Add warning dialog for Timestamp delete
-? 13. Add reset sheet / restyle css
+// 13. Add reset sheet / restyle css
 - 14. Add dates to Timestamps (style ex: @Jan 7, 2015)
 - 15. Change title attribute of "In Basecamp?" checkbox
 - 16. Add Welcome Message
