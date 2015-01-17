@@ -13,8 +13,6 @@ var TK = {
 	record_output: document.getElementById('record_output'),
 	admin_output: document.getElementById('admin'),
 	record_uploader_json: document.getElementById('uploaderJSON'),
-	// record_import_json: document.getElementById('importJSON'),
-	// record_export_pdf: document.getElementById('exportPDF'),
 	record_export_json: document.getElementById('exportJSON'),
 
 	// functions
@@ -60,17 +58,9 @@ var TK = {
 			this.update(this.active);
 		}.bind(this), 1000);
 
-		/*this.record_import_json.onclick = function(e) {
-			this.importJSON();
-		}.bind(this);*/
-
 		this.record_uploader_json.onchange = function(e) {
 			this.importJSON();
 		}.bind(this);
-
-		/*this.record_export_pdf.onclick = function(e) {
-			this.exportToPDF();
-		}.bind(this);*/
 
 		this.record_export_json.onclick = function(e) {
 			this.exportToJSON();
@@ -80,7 +70,6 @@ var TK = {
 
 	// *ADDING / REMOVING NEW RECORDS
 	addRecord: function(guid, name, total, done) {
-		//this.record_name.value, 0, false
 		// default values
 		guid = guid || this.guid();
 		name = name || this.record_name.value;
@@ -98,8 +87,12 @@ var TK = {
 	}, // *end
 	findRecord: function(name) {
 		// Clear all highlights
-		var highlights = document.querySelector('.highlight');
-		if (highlights) highlights.classList.remove('highlight');
+		var highlights = document.querySelectorAll('.highlight');
+		if (highlights) {
+			for (var i = 0; i < highlights.length; i++) {
+				highlights[i].classList.remove('highlight');
+			}
+		}
 
 		name = name.toLowerCase();
 		var id;
@@ -109,10 +102,10 @@ var TK = {
 				break;
 			}
 		}
-		var e = this.records[id].el;
-		if (!!e && e.scrollIntoView) {
-			e.scrollIntoView();
-			e.classList.add('highlight');
+		if (!!id) {
+			var el = this.records[id].el;
+			window.scrollTo(el.offsetLeft,el.offsetTop - 9);
+			el.classList.add('highlight');
 		}
 	},
 
@@ -179,7 +172,6 @@ var TK = {
 			return;
 		}
 
-
 		var reader = new FileReader();
 
 		// If we use onloadend, we need to check the readyState.
@@ -207,46 +199,53 @@ var TK = {
 				var input_rowHeader = document.createElement('input');
 				input_rowHeader.type = 'checkbox';
 				input_rowHeader.checked = 'checked';
+				input_rowHeader.id = 'sa';
 				input_rowHeader.onclick = function(e) {
 					var checkboxes = document.querySelectorAll('.msg-box input[type="checkbox"]');
 					for (var i = 0; i < checkboxes.length; i++) {
 						checkboxes[i].checked = e.target.checked;
 					}
 				};
-				var span_rowHeader = document.createElement('span');
-				span_rowHeader.innerHTML = 'Select All';
+				var label_rowHeader = document.createElement('label');
+				label_rowHeader.innerHTML = 'Select All';
+				label_rowHeader.htmlFor = 'sa';
 
 			li_rowHeader.appendChild(input_rowHeader);
-			li_rowHeader.appendChild(span_rowHeader);
+			li_rowHeader.appendChild(label_rowHeader);
 
 			var li_admin = document.createElement('li');
 			li_admin.classList.add('admin');
 
 				var input_admin = document.createElement('input');
 				input_admin.type = 'checkbox';
-				input_admin.checked = 'checked';
+				//input_admin.checked = 'checked';
 				input_admin.dataset.recordId = 'a';
-				var span_admin = document.createElement('span');
-				span_admin.innerHTML = 'Admin Time (OVERWRITE)';
+				input_admin.id = 'ia';
+				var label_admin = document.createElement('label');
+				label_admin.innerHTML = 'Admin Time (OVERWRITE)';
+				label_admin.htmlFor = 'ia';
 
 			li_admin.appendChild(input_admin);
-			li_admin.appendChild(span_admin);
+			li_admin.appendChild(label_admin);
 
 		ul.appendChild(li_rowHeader);
 		ul.appendChild(li_admin);
 
 		for (var i = 0; i < data.records.length; i++) {
 			var li_record = document.createElement('li');
+			if (data.records[i].done === true) li_record.classList.add('done');
 
 				var input_cbox_record = document.createElement('input');
 				input_cbox_record.type = 'checkbox';
-				input_cbox_record.checked = 'checked';
+				if (data.records[i].done === false) input_cbox_record.checked = 'checked';
 				input_cbox_record.dataset.recordId = i;
-				var span_record = document.createElement('span');
-				span_record.innerHTML = data.records[i].name;
+				input_cbox_record.id = 'ir'+i;
+				var label_record = document.createElement('label');
+				label_record.innerHTML = data.records[i].name;
+				label_record.htmlFor = 'ir'+i;
 
 				li_record.appendChild(input_cbox_record);
-				li_record.appendChild(span_record);
+				li_record.appendChild(label_record);
 
 			ul.appendChild(li_record);
 		}
@@ -285,101 +284,6 @@ var TK = {
 
 	},
 
-	/*exportToPDF: function() {
-		var pdf = new jsPDF();
-		var now = new Date();
-
-		// header
-		pdf.setFont('courier', 'bold');
-		pdf.setFontSize(20);
-		pdf.text('TimeKeeper Data for ' + now.toLocaleDateString(), 10, 10);
-
-		// admin time
-		pdf.setFont('courier', 'normal');
-		pdf.setFontSize(16);
-		pdf.text('Admin | '+ this.formatRounded(this.admin_time) +' ('+ this.formatActual(this.admin_time) +')', 10, 20);
-
-		// loop through records
-		var yCurrent = 30;
-		for (var i = 0; i < this.records.length; i++) {
-
-			// break out if there is a current timestamp active
-			if (this.records[i].active === true) {
-				this.message(
-					'orange', 
-					'CLOSE TIMESTAMP', 
-					'There apears to be a timestamp currently active. All timestamps must be closed to export.<br><br>Press ACCEPT to close the timestamp and continue the export.',
-					function() {
-
-						this.records[i].closeTimestamp();
-						this.exportToPDF();
-					
-					}.bind(this),
-					function() {
-
-						this.findRecord(this.records[i].name);
-					
-					}.bind(this)
-				);
-
-				return;
-			}
-
-			// record name
-			pdf.setFont('courier', 'bold');
-			pdf.setFontSize(14);
-			if (this.records[i].done === true) {
-				pdf.text(this.records[i].name, 10, yCurrent);
-			}
-			else {
-				pdf.setTextColor(255,0,0);
-				pdf.text(this.records[i].name, 10, yCurrent);
-
-				// reset color
-				pdf.setTextColor(0,0,0);
-			}
-
-			// timestamps
-			pdf.setFont('courier', 'normal');
-			pdf.setFontSize(10);
-			for (var j = 0; j < this.records[i].timestamps.length; j++) {
-
-				yCurrent += 5;
-
-				pdf.text(
-					this.pad(this.records[i].timestamps[j].from.getHours()) + ':' + this.pad(this.records[i].timestamps[j].from.getMinutes()) + ' - ' +
-					this.pad(this.records[i].timestamps[j].to.getHours()) + ':' + this.pad(this.records[i].timestamps[j].to.getMinutes()) + '          ' +
-					this.formatRounded(this.records[i].timestamps[j].difference) + ' (' + this.formatActual(this.records[i].timestamps[j].difference) + ')'
-				, 15, yCurrent);
-
-				yCurrent += 2;
-
-				pdf.setFillColor(0,0,0,0);
-				pdf.rect(15, yCurrent, 68, 0.05);
-
-			}
-
-			yCurrent += 5;
-
-			// total for record
-			pdf.setFont('courier', 'bold');
-			pdf.setFontSize(10);
-			pdf.text(this.formatRounded(this.records[i].total) + ' (' + this.formatActual(this.records[i].total) + ')', 64, yCurrent);
-
-			yCurrent += 15;
-
-		}
-
-		// output / save
-		this.downloadFile(pdf.output('dataurlstring'), 'pdf');
-		this.message(
-			'green',
-			'EXPORT SUCCESSFUL', 
-			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "tk_export_MM-DD-YYYY.pdf".'
-		);
-
-	},*/
-
 	exportToJSON: function() {
 
 		var json = {};
@@ -393,7 +297,7 @@ var TK = {
 				this.message(
 					'orange', 
 					'CLOSE TIMESTAMP', 
-					'There apears to be a timestamp currently active. All timestamps must be closed to export.<br><br>Press ACCEPT to close the timestamp and continue the export.',
+					'There appears to be a timestamp currently active. All timestamps must be closed to export.<br><br>Press ACCEPT to close the timestamp and continue the export.',
 					function() {
 
 						this.records[i].closeTimestamp();
@@ -541,7 +445,8 @@ var TK = {
 			return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 		}
 		return function() {
-			return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+			//return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+			return s4() + s4() + '-' + s4() + '-' + s4();
 		};
 	})(),
 	getRecordID: function(guid) {
@@ -608,6 +513,26 @@ Record.prototype.render = function() {
 				input_open.title = 'Open new Timestamp';
 				input_open.classList.add('open_btn');
 				input_open.onclick = function(e) {
+					// if done is checked then prevent opening new timestamp
+					if (this.done === true) return;
+
+					if (this.parent.active !== false && this.parent.active.split('||')[0] !== this.guid) {
+
+						this.parent.message(
+							'red', 
+							'RECORD CURRENTlY ACTIVE',
+							'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
+							function() {
+
+								var recordid = this.parent.getRecordID(this.parent.active.split('||')[0]);
+								var name = this.parent.records[recordid].name;
+								this.parent.findRecord(name);
+
+							}.bind(this)
+						);
+						return;
+					}
+
 					if (this.active === false && this.parent.active === false) {
 						this.openTimestamp();
 						this.timestamp_open.value = '× Close';
@@ -624,18 +549,31 @@ Record.prototype.render = function() {
 				input_delete.classList.add('delete_btn');
 				input_delete.disabled = 'true';
 				input_delete.onclick = function(e) {
+					// if done is checked then prevent deleting timestamps
+					if (this.done === true) return;
 
-					this.deleteTimestamps();
-				
+					this.parent.message(
+						'orange', 
+						'DELETE SELECTED TIMESTAMPS', 
+						'Are you sure you want to delete ' + this.selectedTimestamps.length + ' selected Timestamp(s)?<br><br>Press ACCEPT to proceed. All selected timestamps will be permanently deleted.',
+						function() {
+
+							this.deleteTimestamps();
+
+						}.bind(this),
+						true
+					)
 				}.bind(this);
 			var div_doneWrap = document.createElement('div');
 				div_doneWrap.classList.add('done-wrap');
 
 					var label = document.createElement('label');
 						label.innerHTML = 'In Basecamp?';
+						label.htmlFor = 'bc_' + this.guid;
 					var input_checkbox = document.createElement('input');
 						input_checkbox.type = 'checkbox';
 						input_checkbox.title = 'Yes/No Entered in Basecamp';
+						input_checkbox.id = 'bc_' + this.guid;
 						if (this.done === true) {
 							input_checkbox.checked = true;
 						}
