@@ -20,6 +20,10 @@ input {
 	font-family: monospace;
 }
 
+input[type="button"], input[type="submit"], input[type="file"], label {
+	cursor: pointer;
+}
+
 /* Welcome Box */
 .welcome {
 	padding:15px !important;
@@ -38,7 +42,7 @@ input {
 }
 
 .welcome em:before, .welcome em:after {
-	content: " ––––––––––––––– ";
+	content: " ——————————————— ";
 }
 .welcome h2 {
 	padding:5px 0;
@@ -136,7 +140,7 @@ hr {
 			position: relative;
 		}
 	
-		.record.done {
+		.done {
 			background-color:#d6ffda;
 		}
 
@@ -160,6 +164,9 @@ hr {
 				right: 0;
 				top:13px;
 			}
+				.actions .done-wrap label, .actions .done-wrap input {
+					vertical-align: middle;
+				}
 
 		.timestamp {
 			border-top:1px solid #ccc;
@@ -332,22 +339,34 @@ hr {
 
 			.msg-box li {
 				list-style: none;
-				padding:5px 10px;
+				position: relative;
 				border-bottom:1px solid #ccc;
 			}
 			.msg-box li:last-child {
 				border-bottom: none;
 			}
+				.msg-box li input {
+					vertical-align: middle;
+					position: absolute;
+					left:10px;
+					top:5px; /* Same as Padding top/bottom of label */
+				}
+				.msg-box li label {
+					display: block;
+					height: 100%;
+					width: 100%;
+					padding:5px 0 5px 30px;
+				}
 			.msg-box .row-header {
 				border-bottom:4px double #ccc;
 				background-color:#eee;
-				padding:5px;
 				text-transform: uppercase;
 			}
-
-				.msg-box li input {
-					vertical-align: middle;
-					margin-right:5px;
+				.msg-box .row-header input {
+					top:10px;
+				}
+				.msg-box .row-header label {
+					padding:10px 0 10px 30px;
 				}
 
 	.msg-buttons {
