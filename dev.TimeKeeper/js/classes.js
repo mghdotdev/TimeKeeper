@@ -350,7 +350,7 @@ var TK = {
 	downloadFile: function(dataURI, fileExt) {
 		var hidden_dl_btn = document.createElement('a');
 		hidden_dl_btn.href = dataURI;
-		hidden_dl_btn.download = 'tk_export_'+new Date().toLocaleDateString()+'.'+fileExt;
+		hidden_dl_btn.download = 'tk_export_'+new Date().toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'})+'.'+fileExt;
 		hidden_dl_btn.style.display = 'none';
 
 		document.body.appendChild(hidden_dl_btn);
