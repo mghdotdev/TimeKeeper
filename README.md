@@ -10,7 +10,7 @@ Once a Record has been created, you can Open a Timestamp and begin working.
 
 After you're finished working press the Close button. The time elapsed will be rounded to the nearest 0.25 hour and calculated towards the Record total.
 
-### Export JSON File Format
+### Import From JSON File Format
 Substitute [x] with the described value.  
 ```javascript
 {
