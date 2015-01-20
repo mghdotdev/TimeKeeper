@@ -389,7 +389,6 @@ hr {
 		}
 		.msg-buttons input:focus {	
 			background-color:#eee;
-			color:#000;
 		}
 
 		/*prompt or not*/
@@ -438,31 +437,28 @@ hr {
 }
 
 	.settings_wrap .setting_item {
-	padding:10px;
-	border-bottom:1px solid #ccc;
-		
+		padding:10px;
+		border-bottom:1px solid #ccc;
 	}
 	.settings_wrap .setting_item:last-child {
 		border-bottom: none;
 	}
 
 		.setting_item .setting_label {
-	float:left;
-			
+			float:left;
+			font-size:12px;
 		}
 		.setting_item .setting_label:after {
 			content: ":";
 		}
 		.setting_item .setting_input {
-	float:right;
-
+			float:right;
 		}
 		.setting_item .setting_desc {
-	clear:both;
-	padding:10px;
-	font-size:10px;
-	color:#666;
-			
+			clear:both;
+			padding:5px 0;
+			font-size:10px;
+			color:#666;
 		}
 
 /* -- end */

@@ -123,6 +123,9 @@ var _APP = {
 		// SECOND: open the message box
 		// THIRD: append the settings HTML to the body of the message
 
+		// copy the settings object so we can make changes to it
+		this.tmpSettings = JSON.parse(JSON.stringify(_SETTINGS));
+
 		var settings_wrap = document.createElement('div');
 			settings_wrap.classList.add('settings_wrap');
 
@@ -156,6 +159,7 @@ var _APP = {
 							var setting_option = document.createElement('option');
 							setting_option.value = _SETTINGS[setting].value.options[i];
 							setting_option.innerHTML = _SETTINGS[setting].value.options[i];
+
 							if (_SETTINGS[setting].value.selected === _SETTINGS[setting].value.options[i]) setting_option.selected = true;
 
 							setting_input.appendChild(setting_option);
@@ -164,6 +168,24 @@ var _APP = {
 				}
 				setting_input.classList.add('setting_input');
 				setting_input.id = setting;
+				setting_input.dataset.type = typeof _SETTINGS[setting].value;
+				setting_input.onchange = function(e) {
+
+					var key = e.target.id;
+
+					switch(e.target.dataset.type) {
+						case 'boolean':
+							this.tmpSettings[key].value = e.target.checked;
+						break;
+						case 'string':
+							this.tmpSettings[key].value = e.target.value
+						break;
+						case 'object':
+							this.tmpSettings[key].value.selected = e.target.value;
+						break;
+					}
+
+				}.bind(this);
 
 				var setting_desc = document.createElement('p');
 					setting_desc.classList.add('setting_desc');
@@ -175,10 +197,6 @@ var _APP = {
 				setting_item.appendChild(setting_desc);
 
 				settings_wrap.appendChild(setting_item);
-
-
-				// clear input for next itteration
-				setting_input = undefined;
 			}
 
 		this.message(
@@ -188,9 +206,21 @@ var _APP = {
 			function () {
 
 				// save settings to chrome.storage or localStorage
+				if (!!chrome.storage) {
+					chrome.storage.sync.set({'tksettings': JSON.stringify(this.tmpSettings)});
+					console.log('Chrome Storage Saved');
+				}
+				else {
+					localStorage.setItem('tksettings', JSON.stringify(this.tmpSettings));
+					console.log('Local Storage Saved');
+				}
+
+				_SETTINGS = this.tmpSettings;
 
 			}.bind(this),
-			true
+			function() {
+				this.tmpSettings = undefined;
+			}.bind(this)
 		);
 
 		document.querySelector('.msg-box .body').appendChild(settings_wrap);
@@ -438,7 +468,7 @@ var _APP = {
 	downloadFile: function(dataURI, fileExt) {
 		var hidden_dl_btn = document.createElement('a');
 		hidden_dl_btn.href = dataURI;
-		hidden_dl_btn.download = 'tk_export_'+new Date().toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'})+'.'+fileExt;
+		hidden_dl_btn.download = _SETTINGS.Export_Filename.value + new Date().toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'})+'.'+fileExt;
 		hidden_dl_btn.style.display = 'none';
 
 		document.body.appendChild(hidden_dl_btn);
@@ -570,14 +600,19 @@ var _SETTINGS = {
 };
 if (!!chrome.storage) {
 	chrome.storage.sync.get('tksettings', function(result) {
-		_SETTINGS = result.tksettings || _SETTINGS;
+		if (!!result.tksettings) {
+			_SETTINGS = JSON.parse(result.tksettings);
+		}
+		else {
+			_SETTINGS = _SETTINGS;
+		}
 		console.log('Settings Loaded', _SETTINGS); // dev
 
 		_APP.init();
 	});
 }
 else {
-	_SETTINGS = localStorage.getItem('tksettings') || _SETTINGS;
+	_SETTINGS = JSON.parse(localStorage.getItem('tksettings')) || _SETTINGS;
 	console.log('Settings Loaded', _SETTINGS); // dev
 
 	_APP.init();
