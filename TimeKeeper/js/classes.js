@@ -474,7 +474,27 @@ var TK = {
 	})()
 
 };
-TK.init();
+
+
+
+// Settings OBJECT
+var _SETTINGS = {
+	recordSort : 'ASC'
+};
+if (!!chrome.storage) {
+	chrome.storage.sync.get('tkconfig', function(result) {
+		if (!!result.tkconfig) {
+			_SETTINGS = result.tkconfig;
+		}
+		else {
+			chrome.storage.sync.set({'tkconfig': _SETTINGS});
+		}
+		console.log('Settings Loaded.');
+	});
+}
+else {
+	_SETTINGS = localStorage.getItem('tkconfig') || _SETTINGS;
+}
 
 // Record Class
 function Record(guid, name, total, done, parent) {
