@@ -1,4 +1,5 @@
-var TK = {
+// Global Object for the app
+var _APP = {
 
 	// variables
 	records: [],
@@ -6,65 +7,69 @@ var TK = {
 	active: false,
 
 	// elements
-	record_form: document.getElementById('record_form'),
-	record_name: document.getElementById('record_name'),
-	record_add: document.getElementById('record_add'),
-	record_find: document.getElementById('record_find'),
+	newRecord_form: document.getElementById('newRecord_form'),
+	recordName_txt: document.getElementById('recordName_txt'),
+	newRecord_btn: document.getElementById('newRecord_btn'),
+	findRecord_btn: document.getElementById('findRecord_btn'),
+	settings_btn: document.getElementById('settings_btn'),
 	record_output: document.getElementById('record_output'),
-	admin_output: document.getElementById('admin'),
-	record_uploader_json: document.getElementById('uploaderJSON'),
-	record_export_json: document.getElementById('exportJSON'),
+	admin_output: document.getElementById('admin_output'),
+	uploadRecord_file: document.getElementById('uploadRecord_file'),
+	exportRecord_btn: document.getElementById('exportRecord_btn'),
 
 	// functions
-	init: function() { // called directly after the definition
-
-		console.log(this); // dev
+	init: function() {
 
 		// misc calls
-		this.record_name.focus();
+		this.recordName_txt.focus();
 
 		// add events
-		this.record_form.onsubmit = function(e) {
+		this.newRecord_form.onsubmit = function(e) {
 			e.preventDefault();
 			return false;
 		};
-		this.record_add.onclick = function(e) {
+		this.newRecord_btn.onclick = function(e) {
 
 			var regex = new RegExp(/[a-z0-9]{1,}/i);
-			if (regex.test(this.record_name.value) === false) {
+			if (regex.test(this.recordName_txt.value) === false) {
 				this.message(
 					'red',
 					'INVALID RECORD NAME',
 					'Record Name is either empty or invalid. You must specifiy an alpha-numeric name before adding a new record.<br><br>This could be the client\'s URL, ticket number or name.',
 					function() {
-						this.record_name.focus();
+						this.recordName_txt.focus();
 					}.bind(this)
 				);
 				return
 			}
 			this.addRecord();
 
-			// clear record_name input
-			this.record_name.value = '';
+			// clear recordName_txt input
+			this.recordName_txt.value = '';
 
 		}.bind(this);
-		this.record_find.onclick = function(e) {
 
-			this.findRecord(this.record_name.value);
+		this.findRecord_btn.onclick = function(e) {
+			this.findRecord(this.recordName_txt.value);
+		}.bind(this);
 
+		this.settings_btn.onclick = function(e) {
+			this.openSettings();
 		}.bind(this);
 
 		window.setInterval(function(e) {
 			this.update(this.active);
 		}.bind(this), 1000);
 
-		this.record_uploader_json.onchange = function(e) {
+		this.uploadRecord_file.onchange = function(e) {
 			this.importJSON();
 		}.bind(this);
 
-		this.record_export_json.onclick = function(e) {
+		this.exportRecord_btn.onclick = function(e) {
 			this.exportToJSON();
 		}.bind(this);
+
+		console.log('App Loaded', this); // dev
 
 	},
 
@@ -72,7 +77,7 @@ var TK = {
 	addRecord: function(guid, name, total, done) {
 		// default values
 		guid = guid || this.guid();
-		name = name || this.record_name.value;
+		name = name || this.recordName_txt.value;
 		total = total || 0;
 		done = (done === true) ? true : false;
 
@@ -107,6 +112,89 @@ var TK = {
 			window.scrollTo(el.offsetLeft,el.offsetTop - 9);
 			el.classList.add('highlight');
 		}
+	},
+
+	openSettings: function() {
+
+		// open the settings dialog box and populate it.
+		// -- using message api
+
+		// FIRST: build the HTML message body from settings JSON obj
+		// SECOND: open the message box
+		// THIRD: append the settings HTML to the body of the message
+
+		var settings_wrap = document.createElement('div');
+			settings_wrap.classList.add('settings_wrap');
+
+			for (setting in _SETTINGS) {
+
+				var setting_item = document.createElement('div');
+					setting_item.classList.add('setting_item');
+
+				var setting_label = document.createElement('label');
+					setting_label.classList.add('setting_label');
+					setting_label.innerHTML = setting.replace('_', ' ');
+					setting_label.htmlFor = setting;
+
+				var setting_input;
+				switch(typeof _SETTINGS[setting].value) { 
+					// decide input type from typeof value
+					case 'boolean':
+						setting_input = document.createElement('input');
+						setting_input.type = 'checkbox';
+						setting_input.checked = _SETTINGS[setting].value;
+					break;
+					case 'string':
+						setting_input = document.createElement('input');
+						setting_input.type = 'text';
+						setting_input.value = _SETTINGS[setting].value;
+						setting_input.placeholder = _SETTINGS[setting].value;
+					break;
+					case 'object':
+						setting_input = document.createElement('select');
+						for (var i = 0; i < _SETTINGS[setting].value.options.length; i++) {
+							var setting_option = document.createElement('option');
+							setting_option.value = _SETTINGS[setting].value.options[i];
+							setting_option.innerHTML = _SETTINGS[setting].value.options[i];
+							if (_SETTINGS[setting].value.selected === _SETTINGS[setting].value.options[i]) setting_option.selected = true;
+
+							setting_input.appendChild(setting_option);
+						}
+					break;
+				}
+				setting_input.classList.add('setting_input');
+				setting_input.id = setting;
+
+				var setting_desc = document.createElement('p');
+					setting_desc.classList.add('setting_desc');
+					setting_desc.innerHTML = _SETTINGS[setting].description;
+
+
+				setting_item.appendChild(setting_label);
+				setting_item.appendChild(setting_input);
+				setting_item.appendChild(setting_desc);
+
+				settings_wrap.appendChild(setting_item);
+
+
+				// clear input for next itteration
+				setting_input = undefined;
+			}
+
+		this.message(
+			'grey',
+			'SETTINGS',
+			'Edit the settings here!',
+			function () {
+
+				// save settings to chrome.storage or localStorage
+
+			}.bind(this),
+			true
+		);
+
+		document.querySelector('.msg-box .body').appendChild(settings_wrap);
+
 	},
 
 	// *FORMATTING TIME
@@ -151,7 +239,7 @@ var TK = {
 
 	importJSON: function() {
 
-		if (!this.record_uploader_json.files.length) {
+		if (!this.uploadRecord_file.files.length) {
 			this.message(
 				'red',
 				'NO FILE CHOSEN',
@@ -160,7 +248,7 @@ var TK = {
 			return;
 		}
 
-		var file = this.record_uploader_json.files[0];
+		var file = this.uploadRecord_file.files[0];
 
 		var type = file.name.split('.').reverse()[0];
 		if (type !== 'json') {
@@ -185,7 +273,7 @@ var TK = {
 		var blob = file.slice(0, file.size);
 		reader.readAsBinaryString(blob);
 
-		this.record_uploader_json.value = '';
+		this.uploadRecord_file.value = '';
 
 	},
 	buildFromImport: function(json) {
@@ -446,7 +534,7 @@ var TK = {
 		}
 		return function() {
 			//return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-			return s4() + s4() + '-' + s4() + '-' + s4();
+			return s4() + s4() + s4() + s4();
 		};
 	})(),
 	getRecordID: function(guid) {
@@ -474,27 +562,27 @@ var TK = {
 	})()
 
 };
-
-
-
 // Settings OBJECT
 var _SETTINGS = {
-	recordSort : 'ASC'
+	Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
+	Export_Filename: {value: 'tk_export_', description: 'Filename prefix for the export JSON files.' },
+	Record_Sort : {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the sorting for Records'}
 };
 if (!!chrome.storage) {
-	chrome.storage.sync.get('tkconfig', function(result) {
-		if (!!result.tkconfig) {
-			_SETTINGS = result.tkconfig;
-		}
-		else {
-			chrome.storage.sync.set({'tkconfig': _SETTINGS});
-		}
-		console.log('Settings Loaded.');
+	chrome.storage.sync.get('tksettings', function(result) {
+		_SETTINGS = result.tksettings || _SETTINGS;
+		console.log('Settings Loaded', _SETTINGS); // dev
+
+		_APP.init();
 	});
 }
 else {
-	_SETTINGS = localStorage.getItem('tkconfig') || _SETTINGS;
+	_SETTINGS = localStorage.getItem('tksettings') || _SETTINGS;
+	console.log('Settings Loaded', _SETTINGS); // dev
+
+	_APP.init();
 }
+
 
 // Record Class
 function Record(guid, name, total, done, parent) {

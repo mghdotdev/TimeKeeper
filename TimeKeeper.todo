@@ -16,6 +16,7 @@ TODO
 - 14. Add dates to Timestamps (style ex: @Jan 7, 2015)
 - 15. Change title attribute of "In Basecamp?" checkbox
 - 16. Add Welcome Message
+17. Add settings configuration system
 
 BUGS
 ----------------------

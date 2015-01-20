@@ -68,18 +68,20 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 		padding:5px 8px;
 		line-height: 15px;
 	}
-	.toolbar #record_add, .toolbar #record_find {
+	.toolbar #newRecord_btn, .toolbar #findRecord_btn {
 		background-color:#000;
 		color:#fff;
 	}
-	.toolbar #record_add:focus, .toolbar #record_find:focus {
+	.toolbar #newRecord_btn:focus, .toolbar #findRecord_btn:focus {
 		background-color:#fff;
 		color:#000;
 	}
-	.toolbar #record_add:hover, .toolbar #record_find:hover {
+	.toolbar #newRecord_btn:hover, .toolbar #findRecord_btn:hover {
 		background-color:#fff;
 		color:#000;
 	}
+
+	
 
 .import-wrap {
 	text-align: center;
@@ -118,13 +120,9 @@ hr {
 	padding:10px;
 }
 
-#wrap .admin {
-	
+.text {
+	font-weight: bold;
 }
-
-	.text {
-		font-weight: bold;
-	}
 
 .records {
 }
@@ -321,14 +319,14 @@ hr {
 
 }
 	
-	.msg-box h2 {
+	.msg-box .header {
 		width:100%;
 		text-align: center;
 		padding:10px 0;
 		background-color:#ccc;
 	}
 
-	.msg-box p {
+	.msg-box .body {
 		padding:15px 15px 60px 15px;
 	}
 
@@ -373,6 +371,7 @@ hr {
 		position: absolute;
 		bottom:0;
 		width:100%;
+		border-top:2px solid #ccc;
 	}
 
 		.msg-buttons input {
@@ -382,7 +381,6 @@ hr {
 			background-color:#fff;
 			padding:10px;
 			outline:none;
-			border-top:1px solid #ccc;
 
 		}
 		.msg-buttons input:first-child {
@@ -412,6 +410,9 @@ hr {
 .msg-box .green {
 	background-color:#33ff66;
 }
+.msg-box .grey {
+	background-color:#999;
+}
 
 /* Open / Closed -- rules */
 .closed {
@@ -424,5 +425,44 @@ hr {
 .closed .msg-box {
 	display: none;
 }
+
+/* -- end */
+
+
+/* Custom SETTINGS messagebox content */
+
+.settings_wrap {
+	margin-top:10px;
+	padding: 0;
+	border-top: 4px double #ccc;
+}
+
+	.settings_wrap .setting_item {
+	padding:10px;
+	border-bottom:1px solid #ccc;
+		
+	}
+	.settings_wrap .setting_item:last-child {
+		border-bottom: none;
+	}
+
+		.setting_item .setting_label {
+	float:left;
+			
+		}
+		.setting_item .setting_label:after {
+			content: ":";
+		}
+		.setting_item .setting_input {
+	float:right;
+
+		}
+		.setting_item .setting_desc {
+	clear:both;
+	padding:10px;
+	font-size:10px;
+	color:#666;
+			
+		}
 
 /* -- end */
