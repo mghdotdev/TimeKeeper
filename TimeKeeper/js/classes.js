@@ -594,9 +594,9 @@ var _APP = {
 };
 // Settings OBJECT
 var _SETTINGS = {
-	Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
+	//Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
 	Export_Filename: {value: 'tk_export_', description: 'Filename prefix for the export JSON files.' },
-	Record_Sort : {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the sorting for Records'}
+	//Record_Sort : {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the sorting for Records'}
 };
 if (!!chrome.storage) {
 	chrome.storage.sync.get('tksettings', function(result) {
