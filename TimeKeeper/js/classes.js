@@ -202,7 +202,7 @@ var _APP = {
 		this.message(
 			'grey',
 			'SETTINGS',
-			'Edit the settings here!',
+			'',
 			function () {
 
 				// save settings to chrome.storage or localStorage
@@ -217,6 +217,12 @@ var _APP = {
 
 				_SETTINGS = this.tmpSettings;
 
+				this.message(
+					'green',
+					'SAVE SUCCESSFUL',
+					'Your settings were successfully saved!<br><br>If you are using the Google Chrome App version, your TimeKeeper settings will be synced with all devices logged in with your Google Account. Otherwise, local storage is used to save your settings.'
+				);
+
 			}.bind(this),
 			function() {
 				this.tmpSettings = undefined;
@@ -224,6 +230,10 @@ var _APP = {
 		);
 
 		document.querySelector('.msg-box .body').appendChild(settings_wrap);
+
+		// change the button values
+		document.querySelector('.msg-box .no').value = 'Discard';
+		document.querySelector('.msg-box .yes').value = 'Save';
 
 	},
 
@@ -508,6 +518,8 @@ var _APP = {
 			messageHeader.className = 'header';
 			document.removeEventListener('keydown', msgKeyHandler);
 			fade.removeEventListener('click', close);
+			messageNo.value = 'Cancel';
+			messageYes.value = 'Accept';
 		}
 		function msgKeyHandler(e) {
 			if (e.keyCode === 27) {
@@ -594,9 +606,10 @@ var _APP = {
 };
 // Settings OBJECT
 var _SETTINGS = {
-	//Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
-	Export_Filename: {value: 'tk_export_', description: 'Filename prefix for the export JSON files.' },
-	//Record_Sort : {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the sorting for Records'}
+	Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
+	Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
+	Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
+	Timestamp_Format: {value: {selected: '24 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
 };
 if (!!chrome.storage) {
 	chrome.storage.sync.get('tksettings', function(result) {

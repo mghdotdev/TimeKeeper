@@ -16,7 +16,8 @@ TODO
 - 14. Add dates to Timestamps (style ex: @Jan 7, 2015)
 - 15. Change title attribute of "In Basecamp?" checkbox
 - 16. Add Welcome Message
-17. Add settings configuration system
+- 17. Add settings configuration system
+18. Link settings object options to actual interactions in the App.
 
 BUGS
 ----------------------
@@ -30,6 +31,7 @@ BUGS
 - 8. Fix issue with "Find" function not working due to new GUID update
 - 9. "In Basecamp?" Button not carrying style over for re-imported record.
 - 10. Fix issue of either overwriting the records array or appending it... display appends | class overwrites
+- 11. Fixed max-height issue on Message Box div
 
 
 
