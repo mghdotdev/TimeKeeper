@@ -469,7 +469,7 @@ var _APP = {
 		this.message(
 			'green',
 			'EXPORT SUCCESSFUL', 
-			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "tk_export_MM-DD-YYYY.json".'
+			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "' + _SETTINGS.Export_Filename.value + 'MM-DD-YYYY.json".'
 		);
 
 	},
