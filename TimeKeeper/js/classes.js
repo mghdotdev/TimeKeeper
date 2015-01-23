@@ -1,5 +1,5 @@
 // Global Object for the app
-var _APP = {
+var TimeKeeper = {
 
 	// variables
 	records: [],
@@ -17,11 +17,50 @@ var _APP = {
 	uploadRecord_file: document.getElementById('uploadRecord_file'),
 	exportRecord_btn: document.getElementById('exportRecord_btn'),
 
+	_settings: {
+		Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
+		Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
+		Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
+		Timestamp_Format: {value: {selected: '24 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
+	},
+	tmpSettings: {},
+
 	// functions
+	getSettings: function() {
+		var app = this;
+		if (!!chrome.storage) {
+			chrome.storage.sync.get('tksettings', function(result) {
+				if (!!result.tksettings) {
+					this._settings = JSON.parse(result.tksettings);
+				}
+				else {
+					this._settings = this._settings;
+				}
+				app.init();
+			}.bind(this));
+		}
+		else {
+			this._settings = JSON.parse(localStorage.getItem('tksettings')) || this._settings;
+			app.init();
+		}
+	},
+	applySettings: function() {
+
+		// Admin Time display
+		if (this._settings.Admin_Time.value === false) {
+			admin_output.style.display = 'none';
+		}
+		else {
+			admin_output.style.display = 'block';
+		}
+
+	},
+
 	init: function() {
 
-		// misc calls
+		// Initial Calls and Settings Overrides
 		this.recordName_txt.focus();
+		this.applySettings();
 
 		// add events
 		this.newRecord_form.onsubmit = function(e) {
@@ -124,12 +163,12 @@ var _APP = {
 		// THIRD: append the settings HTML to the body of the message
 
 		// copy the settings object so we can make changes to it
-		this.tmpSettings = JSON.parse(JSON.stringify(_SETTINGS));
+		this.tmpSettings = JSON.parse(JSON.stringify(this._settings));
 
 		var settings_wrap = document.createElement('div');
 			settings_wrap.classList.add('settings_wrap');
 
-			for (setting in _SETTINGS) {
+			for (setting in this._settings) {
 
 				var setting_item = document.createElement('div');
 					setting_item.classList.add('setting_item');
@@ -140,27 +179,27 @@ var _APP = {
 					setting_label.htmlFor = setting;
 
 				var setting_input;
-				switch(typeof _SETTINGS[setting].value) { 
+				switch(typeof this._settings[setting].value) { 
 					// decide input type from typeof value
 					case 'boolean':
 						setting_input = document.createElement('input');
 						setting_input.type = 'checkbox';
-						setting_input.checked = _SETTINGS[setting].value;
+						setting_input.checked = this._settings[setting].value;
 					break;
 					case 'string':
 						setting_input = document.createElement('input');
 						setting_input.type = 'text';
-						setting_input.value = _SETTINGS[setting].value;
-						setting_input.placeholder = _SETTINGS[setting].value;
+						setting_input.value = this._settings[setting].value;
+						setting_input.placeholder = this._settings[setting].value;
 					break;
 					case 'object':
 						setting_input = document.createElement('select');
-						for (var i = 0; i < _SETTINGS[setting].value.options.length; i++) {
+						for (var i = 0; i < this._settings[setting].value.options.length; i++) {
 							var setting_option = document.createElement('option');
-							setting_option.value = _SETTINGS[setting].value.options[i];
-							setting_option.innerHTML = _SETTINGS[setting].value.options[i];
+							setting_option.value = this._settings[setting].value.options[i];
+							setting_option.innerHTML = this._settings[setting].value.options[i];
 
-							if (_SETTINGS[setting].value.selected === _SETTINGS[setting].value.options[i]) setting_option.selected = true;
+							if (this._settings[setting].value.selected === this._settings[setting].value.options[i]) setting_option.selected = true;
 
 							setting_input.appendChild(setting_option);
 						}
@@ -168,7 +207,7 @@ var _APP = {
 				}
 				setting_input.classList.add('setting_input');
 				setting_input.id = setting;
-				setting_input.dataset.type = typeof _SETTINGS[setting].value;
+				setting_input.dataset.type = typeof this._settings[setting].value;
 				setting_input.onchange = function(e) {
 
 					var key = e.target.id;
@@ -189,7 +228,7 @@ var _APP = {
 
 				var setting_desc = document.createElement('p');
 					setting_desc.classList.add('setting_desc');
-					setting_desc.innerHTML = _SETTINGS[setting].description;
+					setting_desc.innerHTML = this._settings[setting].description;
 
 
 				setting_item.appendChild(setting_label);
@@ -215,7 +254,8 @@ var _APP = {
 					console.log('Local Storage Saved');
 				}
 
-				_SETTINGS = this.tmpSettings;
+				this._settings = this.tmpSettings;
+				this.applySettings();
 
 				this.message(
 					'green',
@@ -250,6 +290,10 @@ var _APP = {
 
 	update: function(id) {
 		if (id === false) {
+
+			// stop the update function if the admin time tracking is set to false
+			if (this._settings.Admin_Time.value === false) return;
+
 			this.admin_time += 1000;
 			this.admin_output.children[2].innerHTML = this.formatRounded(this.admin_time);
 			this.admin_output.children[3].innerHTML = this.formatActual(this.admin_time);
@@ -469,7 +513,7 @@ var _APP = {
 		this.message(
 			'green',
 			'EXPORT SUCCESSFUL', 
-			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "' + _SETTINGS.Export_Filename.value + 'MM-DD-YYYY.json".'
+			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "' + this._settings.Export_Filename.value + 'MM-DD-YYYY.json".'
 		);
 
 	},
@@ -478,7 +522,7 @@ var _APP = {
 	downloadFile: function(dataURI, fileExt) {
 		var hidden_dl_btn = document.createElement('a');
 		hidden_dl_btn.href = dataURI;
-		hidden_dl_btn.download = _SETTINGS.Export_Filename.value + new Date().toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'})+'.'+fileExt;
+		hidden_dl_btn.download = this._settings.Export_Filename.value + new Date().toLocaleDateString(navigator.language, {month: '2-digit', day: '2-digit', year: 'numeric'})+'.'+fileExt;
 		hidden_dl_btn.style.display = 'none';
 
 		document.body.appendChild(hidden_dl_btn);
@@ -604,32 +648,7 @@ var _APP = {
 	})()
 
 };
-// Settings OBJECT
-var _SETTINGS = {
-	Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
-	Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
-	Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
-	Timestamp_Format: {value: {selected: '24 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
-};
-if (!!chrome.storage) {
-	chrome.storage.sync.get('tksettings', function(result) {
-		if (!!result.tksettings) {
-			_SETTINGS = JSON.parse(result.tksettings);
-		}
-		else {
-			_SETTINGS = _SETTINGS;
-		}
-		console.log('Settings Loaded', _SETTINGS); // dev
-
-		_APP.init();
-	});
-}
-else {
-	_SETTINGS = JSON.parse(localStorage.getItem('tksettings')) || _SETTINGS;
-	console.log('Settings Loaded', _SETTINGS); // dev
-
-	_APP.init();
-}
+TimeKeeper.getSettings();
 
 
 // Record Class
@@ -866,10 +885,19 @@ function Timestamp(guid, from, to, difference, active, parent) {
 }
 Timestamp.prototype.render = function() {
 
-	var from = this.parent.parent.pad(this.from.getHours())+':'+this.parent.parent.pad(this.from.getMinutes());
+	// Swap out date format settings
+	var dateOptions = {};
+	if (this.parent.parent._settings.Timestamp_Format.value.selected === '24 Hour') {
+		dateOptions = {hour: '2-digit', minute:'2-digit', hour12: false};
+	}
+	else if (this.parent.parent._settings.Timestamp_Format.value.selected === '12 Hour') {
+		dateOptions = {hour: '2-digit', minute:'2-digit', hour12: true};
+	}
+
+	var from = this.from.toLocaleTimeString(navigator.language, dateOptions);
 	var to = '...';
 	if (this.to !== undefined) {
-		to = this.parent.parent.pad(this.to.getHours())+':'+this.parent.parent.pad(this.to.getMinutes());
+		to = this.to.toLocaleTimeString(navigator.language, dateOptions);
 	}
 
 	var abbrMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
