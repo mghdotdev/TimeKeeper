@@ -18,6 +18,7 @@ TODO
 - 16. Add Welcome Message
 - 17. Add settings configuration system
 18. Link settings object options to actual interactions in the App.
+19. Dynamic settings updates, check for new version and update only unedited setting
 
 BUGS
 ----------------------
