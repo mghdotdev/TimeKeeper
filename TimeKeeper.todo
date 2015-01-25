@@ -20,6 +20,7 @@ TODO
 18. Link settings object options to actual interactions in the App and updated them live.
 19. Dynamic settings updates, check for new version and update only unedited setting
 - 20. Dual input for search and add. On key up Record Name input fuzzy search results. Can add record from input
+21. 
 
 BUGS
 ----------------------
@@ -34,8 +35,6 @@ BUGS
 - 9. "In Basecamp?" Button not carrying style over for re-imported record.
 - 10. Fix issue of either overwriting the records array or appending it... display appends | class overwrites
 - 11. Fixed max-height issue on Message Box div
-
-
 
 -------------------------------
 - = done | ! = important
