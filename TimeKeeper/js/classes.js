@@ -1,4 +1,7 @@
 // Global Object for the app
+
+// bianca is cool
+
 var TimeKeeper = {
 
 	// variables
@@ -151,6 +154,17 @@ var TimeKeeper = {
 			window.scrollTo(el.offsetLeft,el.offsetTop - 9);
 			el.classList.add('highlight');
 		}
+	},
+	filterRecords: function(searchString) {
+
+		// onkeyup of the Record Name input, fuzzy search / filter records
+		// dual purpose serves to prevent duplicate naming and quick search
+
+		// FIRST: handle input and find records
+		// SECOND: hide not-found records, filtered records are shown
+
+
+
 	},
 
 	openSettings: function() {
@@ -647,8 +661,7 @@ var TimeKeeper = {
 		return decodeHTMLEntities;
 	})()
 
-};
-TimeKeeper.getSettings();
+}.getSettings();
 
 
 // Record Class
