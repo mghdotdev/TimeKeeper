@@ -1,7 +1,4 @@
 // Global Object for the app
-
-// bianca is cool
-
 var TimeKeeper = {
 
 	// variables
@@ -23,6 +20,7 @@ var TimeKeeper = {
 	_settings: {
 		Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
 		Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
+		Fuzzy_Search: {value: true, description: 'Turn On/Off the auto searching functionality on the Record Name input box.'},
 		Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
 		Timestamp_Format: {value: {selected: '24 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
 	},
@@ -70,6 +68,15 @@ var TimeKeeper = {
 			e.preventDefault();
 			return false;
 		};
+
+		this.recordName_txt.onkeyup = function(e) {
+			// check for ESC key to clear input / filter results
+			if (e.keyCode === 27) {
+				e.target.value = '';
+			}
+			if (this.records.length > 0) this.filterRecords(e.target.value);
+		}.bind(this);
+
 		this.newRecord_btn.onclick = function(e) {
 
 			var regex = new RegExp(/[a-z0-9]{1,}/i);
@@ -157,13 +164,58 @@ var TimeKeeper = {
 	},
 	filterRecords: function(searchString) {
 
+		if (this._settings.Fuzzy_Search.value === false) return;
+
 		// onkeyup of the Record Name input, fuzzy search / filter records
 		// dual purpose serves to prevent duplicate naming and quick search
 
-		// FIRST: handle input and find records
-		// SECOND: hide not-found records, filtered records are shown
+		// FIRST: handle input
+		// SECOND: search records and sort by relevence
+		// THIRD: hide not-found records, filtered records are shown
 
 
+
+		//////// quick and dirty first try ! NOT FOLLOWING STEPS !
+
+		var tokens = searchString.split('');
+
+		this.records.forEach(function(record) {
+			var regex = new RegExp(tokens.join('.*?'), 'i');
+			if (regex.exec(record.name) === null) {
+				record.el.style.display = 'none';
+			}
+			else {
+				record.el.style.display = '';
+			}
+		});
+
+		/*var results = [];
+		var fuzzy = searchString.split('');
+
+		for (var i = 0; i < this.records.length; i++) {
+			
+			var relevence = 0;
+
+			for (var j = 0; j < fuzzy.length; j++) {
+				var index = this.records[i].name.toLowerCase().indexOf(fuzzy[j]);
+				if (index !== -1) {
+					console.log(index);
+					relevence++;
+				}
+
+			}
+
+			if (relevence > 0) {
+				results.push({
+					relevence: relevence,
+					guid: this.records[i].guid,
+					name: this.records[i].name,
+				});
+			}
+
+		}
+
+		console.log(results);*/
 
 	},
 
@@ -625,9 +677,9 @@ var TimeKeeper = {
 		fade.addEventListener('click', close);
 
 	},
-	pad: function(n) { // add a leading zero to the passed number
+	/*pad: function(n) { // add a leading zero to the passed number
 		return n<10 ? '0'+n : n;
-	},
+	},*/
 	guid: (function() {
 		function s4() {
 			return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -643,24 +695,7 @@ var TimeKeeper = {
 				return i;
 			}
 		}
-	},
-	decodeEntities: (function() {
-		// this prevents any overhead from creating the object each time
-		var element = document.createElement('div');
-		function decodeHTMLEntities (str) {
-			if(str && typeof str === 'string') {
-				// strip script/html tags
-				str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, '');
-				str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, '');
-				element.innerHTML = str;
-				str = element.textContent;
-				element.textContent = '';
-			}
-			return str;
-		}
-		return decodeHTMLEntities;
-	})()
-
+	}
 }.getSettings();
 
 
@@ -760,6 +795,7 @@ Record.prototype.render = function() {
 						label.htmlFor = 'bc_' + this.guid;
 					var input_checkbox = document.createElement('input');
 						input_checkbox.type = 'checkbox';
+						input_checkbox.tabIndex = -1;
 						input_checkbox.title = 'Yes/No Entered in Basecamp';
 						input_checkbox.id = 'bc_' + this.guid;
 						if (this.done === true) {
@@ -929,6 +965,7 @@ Timestamp.prototype.render = function() {
 		var input_checkbox = document.createElement('input');
 			input_checkbox.classList.add('select');
 			input_checkbox.type = 'checkbox';
+			input_checkbox.tabIndex = -1;
 			input_checkbox.onchange = function(e) {
 
 				var index = this.parent.selectedTimestamps.indexOf(this.guid);
