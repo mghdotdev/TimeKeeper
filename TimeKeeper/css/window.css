@@ -49,10 +49,16 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 }
 /* Welcome Box */
 
-.records .content-block:last-child {
+.records.ASC .content-block:last-child {
 	display: none;
 }
-.records .content-block:first-child {
+.records.ASC .content-block:first-child {
+	display: block;
+}
+.records.DESC .content-block:first-child {
+	display: none;
+}
+.records.DESC .content-block:last-child {
 	display: block;
 }
 
@@ -165,6 +171,22 @@ hr {
 				.actions .done-wrap label, .actions .done-wrap input {
 					vertical-align: middle;
 				}
+
+		.timestamps .empty {
+			padding: 10px 0;
+			text-align: center;
+			color: #999;
+		}
+			.timestamps .empty p {
+				padding:5px 0;
+			}
+	
+		.timestamps div:last-child {
+			display: none;
+		}
+		.timestamps div:first-child {
+			display: block;
+		}
 
 		.timestamp {
 			border-top:1px solid #ccc;

@@ -56,6 +56,16 @@ var TimeKeeper = {
 			admin_output.style.display = 'block';
 		}
 
+		// Record Sorting
+		for (var i = 0; i < this._settings.Record_Sort.value.options.length; i++) {
+			record_output.classList.remove(this._settings.Record_Sort.value.options[i]);
+		};
+		record_output.classList.add(this._settings.Record_Sort.value.selected);
+		var i = record_output.childNodes.length;
+		while (i--) {
+			record_output.appendChild(record_output.childNodes[i]);
+		}
+
 	},
 
 	init: function() {
@@ -292,8 +302,10 @@ var TimeKeeper = {
 					console.log('Local Storage Saved');
 				}
 
-				this._settings = this.tmpSettings;
-				this.applySettings();
+				if (JSON.stringify(this._settings) !== JSON.stringify(this.tmpSettings)) {
+					this._settings = this.tmpSettings;
+					this.applySettings();
+				}
 
 				this.message(
 					'green',
@@ -457,7 +469,22 @@ var TimeKeeper = {
 				li_record.appendChild(input_cbox_record);
 				li_record.appendChild(label_record);
 
-			ul.appendChild(li_record);
+			if (this._settings.Record_Sort.value.selected === 'ASC') {
+				var prevNode = ul.children[2];
+				ul.insertBefore(li_record, prevNode);
+			}
+			else {
+				ul.appendChild(li_record);
+			}
+
+			/*
+			if (this.parent._settings.Record_Sort.value.selected === 'ASC') {
+		var prevNode = this.parent.record_output.children[0];
+		this.parent.record_output.insertBefore(div_record, prevNode);
+	}
+	else {
+		this.parent.record_output.appendChild(div_record);
+	}*/
 		}
 		
 		this.message(
@@ -795,6 +822,20 @@ Record.prototype.render = function() {
 
 		var div_timestamps = document.createElement('div');
 			div_timestamps.classList.add('timestamps');
+
+				var div_empty = document.createElement('div');
+					div_empty.classList.add('empty');
+
+						var p_empty = document.createElement('p');
+							p_empty.innerHTML = 'No Current Timestamps.';
+						var p_empty2 = document.createElement('p');
+							p_empty2.innerHTML = 'Press "+ Open" to create a new Timestamp.';
+
+					div_empty.appendChild(p_empty);
+					div_empty.appendChild(p_empty2);
+
+			div_timestamps.appendChild(div_empty);
+
 		var h3_total = document.createElement('h3');
 			h3_total.classList.add('total');
 
@@ -813,8 +854,13 @@ Record.prototype.render = function() {
 		div_record.appendChild(div_timestamps);
 		div_record.appendChild(h3_total);
 
-	var prevNode = this.parent.record_output.children[0];
-	this.parent.record_output.insertBefore(div_record, prevNode);
+	if (this.parent._settings.Record_Sort.value.selected === 'ASC') {
+		var prevNode = this.parent.record_output.children[0];
+		this.parent.record_output.insertBefore(div_record, prevNode);
+	}
+	else {
+		this.parent.record_output.appendChild(div_record);
+	}
 
 	// define this parameters
 	this.el = div_record;
