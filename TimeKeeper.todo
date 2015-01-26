@@ -20,6 +20,7 @@ TODO
 18. Link settings object options to actual interactions in the App and updated them live.
 19. Dynamic settings updates, check for new version and update only unedited setting
 - 20. Dual input for search and add. On key up Record Name input fuzzy search results. Can add record from input
+21: Timestamp "weclome message", (before timestamps are added, instructional)
 
 BUGS
 ----------------------

@@ -17,12 +17,13 @@ var TimeKeeper = {
 	uploadRecord_file: document.getElementById('uploadRecord_file'),
 	exportRecord_btn: document.getElementById('exportRecord_btn'),
 
+	// meta information
 	_settings: {
 		Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
 		Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
-		Fuzzy_Search: {value: true, description: 'Turn On/Off the auto searching functionality on the Record Name input box.'},
+		// Fuzzy_Search: {value: true, description: 'Turn On/Off the auto searching functionality on the Record Name input box.'},
 		Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
-		Timestamp_Format: {value: {selected: '24 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
+		Timestamp_Format: {value: {selected: '12 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
 	},
 	tmpSettings: {},
 
@@ -74,7 +75,7 @@ var TimeKeeper = {
 			if (e.keyCode === 27) {
 				e.target.value = '';
 			}
-			if (this.records.length > 0) this.filterRecords(e.target.value);
+			//if (this.records.length > 0) this.filterRecords(e.target.value);
 		}.bind(this);
 
 		this.newRecord_btn.onclick = function(e) {
@@ -84,7 +85,7 @@ var TimeKeeper = {
 				this.message(
 					'red',
 					'INVALID RECORD NAME',
-					'Record Name is either empty or invalid. You must specifiy an alpha-numeric name before adding a new record.<br><br>This could be the client\'s URL, ticket number or name.',
+					'Record Name is either empty or invalid. You must specify an alpha-numeric name before adding a new record.<br><br>This could be the client\'s URL, ticket number or name.',
 					function() {
 						this.recordName_txt.focus();
 					}.bind(this)
@@ -173,11 +174,10 @@ var TimeKeeper = {
 		// SECOND: search records and sort by relevence
 		// THIRD: hide not-found records, filtered records are shown
 
-
-
-		//////// quick and dirty first try ! NOT FOLLOWING STEPS !
-
 		var tokens = searchString.split('');
+		for (var i = 0; i < tokens.length; i++) {
+			tokens[i] = tokens[i].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+		}
 
 		this.records.forEach(function(record) {
 			var regex = new RegExp(tokens.join('.*?'), 'i');
@@ -188,34 +188,6 @@ var TimeKeeper = {
 				record.el.style.display = '';
 			}
 		});
-
-		/*var results = [];
-		var fuzzy = searchString.split('');
-
-		for (var i = 0; i < this.records.length; i++) {
-			
-			var relevence = 0;
-
-			for (var j = 0; j < fuzzy.length; j++) {
-				var index = this.records[i].name.toLowerCase().indexOf(fuzzy[j]);
-				if (index !== -1) {
-					console.log(index);
-					relevence++;
-				}
-
-			}
-
-			if (relevence > 0) {
-				results.push({
-					relevence: relevence,
-					guid: this.records[i].guid,
-					name: this.records[i].name,
-				});
-			}
-
-		}
-
-		console.log(results);*/
 
 	},
 
