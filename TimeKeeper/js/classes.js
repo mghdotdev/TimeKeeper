@@ -147,6 +147,7 @@ var TimeKeeper = {
 	removeRecord: function(guid) {
 
 		var id = this.getRecordID(guid);
+		this.records[id].el.remove();
 		this.records.splice(id, 1);
 
 	}, // *end
@@ -477,14 +478,6 @@ var TimeKeeper = {
 				ul.appendChild(li_record);
 			}
 
-			/*
-			if (this.parent._settings.Record_Sort.value.selected === 'ASC') {
-		var prevNode = this.parent.record_output.children[0];
-		this.parent.record_output.insertBefore(div_record, prevNode);
-	}
-	else {
-		this.parent.record_output.appendChild(div_record);
-	}*/
 		}
 		
 		this.message(
@@ -676,15 +669,11 @@ var TimeKeeper = {
 		fade.addEventListener('click', close);
 
 	},
-	/*pad: function(n) { // add a leading zero to the passed number
-		return n<10 ? '0'+n : n;
-	},*/
 	guid: (function() {
 		function s4() {
 			return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 		}
 		return function() {
-			//return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 			return s4() + s4() + s4() + s4();
 		};
 	})(),
@@ -695,7 +684,8 @@ var TimeKeeper = {
 			}
 		}
 	}
-}.getSettings();
+}
+TimeKeeper.getSettings();
 
 
 // Record Class
