@@ -18,12 +18,13 @@ TODO
 - 16. Add Welcome Message
 - 17. Add settings configuration system
 - 18. Link settings object options to actual interactions in the App and updated them live.
-19. Dynamic settings updates, check for new version and update only unedited setting
+- 19. Dynamic settings updates, check for new version and update only unedited setting
 - 20. Dual input for search and add. On key up Record Name input fuzzy search results. Can add record from input
 - 21. Timestamp "weclome message", (before timestamps are added, instructional)
 - 22. Added favicon for non-chrome app version
 - 23. Revamped searching, now it is controled through the "Find" button or super+F
 - 24. Added more keybindings (super+I, super+E, super+N)
+! 25. Restructure and organize CSS / JS files
 
 BUGS
 ----------------------
@@ -38,6 +39,7 @@ BUGS
 - 9. "In Basecamp?" Button not carrying style over for re-imported record.
 - 10. Fix issue of either overwriting the records array or appending it... display appends | class overwrites
 - 11. Fixed max-height issue on Message Box div
+12. while applying admin time on/off the ASC/DESC bugs out, showing the welcome message
 
 -------------------------------
 - = done | ! = important

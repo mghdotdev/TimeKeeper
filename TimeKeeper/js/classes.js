@@ -1,3 +1,6 @@
+// check for chrome first
+window.chrome = window.chrome || undefined;
+
 // Global Object for the app
 var TimeKeeper = {
 
@@ -7,7 +10,8 @@ var TimeKeeper = {
 	active: false,
 	searching: false,
 	modifierKey: 'ctrlKey',
-	chromeApp: (chrome && chrome.app && chrome.app.runtime) ? true : false,
+	chromeApp: (chrome && chrome.app) ? true : false,
+	version: (chrome && chrome.runtime) ? chrome.runtime.getManifest().version : '2.0.0',
 
 	// elements
 	newRecord_form: document.getElementById('newRecord_form'),
@@ -21,37 +25,79 @@ var TimeKeeper = {
 	exportRecord_btn: document.getElementById('exportRecord_btn'),
 
 	// meta information
-	_settings: {
+	defaultSettings: {
 		Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
 		Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
 		Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
 		Timestamp_Format: {value: {selected: '12 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
 	},
-	tmpSettings: {},
+	userSettings: {},
+	unsavedSettings: {},
 
 	// functions
 	getSettings: function() {
 		var app = this;
-		if (!!chrome.storage) {
+		if (chrome && chrome.storage) {
 			chrome.storage.sync.get('tksettings', function(result) {
 				if (!!result.tksettings) {
-					this._settings = JSON.parse(result.tksettings);
+					this.userSettings = this.updateSettings(JSON.parse(result.tksettings));
 				}
 				else {
-					this._settings = this._settings;
+					this.userSettings = this.defaultSettings;
 				}
 				app.init();
 			}.bind(this));
 		}
-		else {
-			this._settings = JSON.parse(localStorage.getItem('tksettings')) || this._settings;
+		else if (localStorage) {
+			this.userSettings = this.updateSettings(JSON.parse(localStorage.getItem('tksettings'))) || this.defaultSettings;
 			app.init();
 		}
+		else {
+			// wow you really have a terrible browser...
+		}
+		
+	},
+	updateSettings: function(stored) {
+		// handles updates to the base settings obj
+		// saves the user's options where appropriate, all while updating the settings obj for compatibility.
+
+		// stored = the settings object retrieved from storage
+		// updated = the updated settings that were meshed from both storage and template
+
+		// FIRST: Copy default settings into the updated variable
+		// SECOND: loop through the updated settings obj and find differences
+		// THIRD: return the meshed and updated copy
+
+		var updated = JSON.parse(JSON.stringify(this.defaultSettings));
+
+		for (var i = 0; i < Object.keys(updated).length; i++) {
+			var settingName = Object.keys(updated)[i];
+
+			// if setting existed in the stored version
+			if (!!stored[settingName]) {
+				// if typeof stored value is equal to the current version
+				if (typeof stored[settingName].value === typeof updated[settingName].value) {
+					// if type is object then check the selected propery
+					// else, apply stored value
+					if (typeof updated[settingName].value === 'object') {
+						// if typeof selected is equal
+						if (typeof stored[settingName].value.selected === typeof updated[settingName].value.selected) {
+							updated[settingName].value.selected = stored[settingName].value.selected;
+						}
+					}
+					else {
+						updated[settingName].value = stored[settingName].value;
+					}
+				}
+			}
+		}
+
+		return updated;
 	},
 	applySettings: function() {
 
 		// Admin Time display
-		if (this._settings.Admin_Time.value === false) {
+		if (this.userSettings.Admin_Time.value === false) {
 			admin_output.style.display = 'none';
 		}
 		else {
@@ -59,10 +105,10 @@ var TimeKeeper = {
 		}
 
 		// Record Sorting
-		for (var i = 0; i < this._settings.Record_Sort.value.options.length; i++) {
-			record_output.classList.remove(this._settings.Record_Sort.value.options[i]);
-		};
-		record_output.classList.add(this._settings.Record_Sort.value.selected);
+		for (var i = 0; i < this.userSettings.Record_Sort.value.options.length; i++) {
+			record_output.classList.remove(this.userSettings.Record_Sort.value.options[i]);
+		}
+		record_output.classList.add(this.userSettings.Record_Sort.value.selected);
 		var i = record_output.childNodes.length;
 		while (i--) {
 			record_output.appendChild(record_output.childNodes[i]);
@@ -78,6 +124,8 @@ var TimeKeeper = {
 		if (navigator.platform.indexOf('Mac') >= 0) {
 			this.modifierKey = 'metaKey';
 		}
+		document.querySelector('.info .version').innerHTML = 'Version: ' + this.version;
+		
 
 		// add events
 		window.onkeydown = function(e) {
@@ -278,12 +326,12 @@ var TimeKeeper = {
 		// THIRD: append the settings HTML to the body of the message
 
 		// copy the settings object so we can make changes to it
-		this.tmpSettings = JSON.parse(JSON.stringify(this._settings));
+		this.unsavedSettings = JSON.parse(JSON.stringify(this.userSettings));
 
 		var settings_wrap = document.createElement('div');
 			settings_wrap.classList.add('settings_wrap');
 
-			for (setting in this._settings) {
+			for (setting in this.userSettings) {
 
 				var setting_item = document.createElement('div');
 					setting_item.classList.add('setting_item');
@@ -294,27 +342,27 @@ var TimeKeeper = {
 					setting_label.htmlFor = setting;
 
 				var setting_input;
-				switch(typeof this._settings[setting].value) { 
+				switch(typeof this.userSettings[setting].value) { 
 					// decide input type from typeof value
 					case 'boolean':
 						setting_input = document.createElement('input');
 						setting_input.type = 'checkbox';
-						setting_input.checked = this._settings[setting].value;
+						setting_input.checked = this.userSettings[setting].value;
 					break;
 					case 'string':
 						setting_input = document.createElement('input');
 						setting_input.type = 'text';
-						setting_input.value = this._settings[setting].value;
-						setting_input.placeholder = this._settings[setting].value;
+						setting_input.value = this.userSettings[setting].value;
+						setting_input.placeholder = this.userSettings[setting].value;
 					break;
 					case 'object':
 						setting_input = document.createElement('select');
-						for (var i = 0; i < this._settings[setting].value.options.length; i++) {
+						for (var i = 0; i < this.userSettings[setting].value.options.length; i++) {
 							var setting_option = document.createElement('option');
-							setting_option.value = this._settings[setting].value.options[i];
-							setting_option.innerHTML = this._settings[setting].value.options[i];
+							setting_option.value = this.userSettings[setting].value.options[i];
+							setting_option.innerHTML = this.userSettings[setting].value.options[i];
 
-							if (this._settings[setting].value.selected === this._settings[setting].value.options[i]) setting_option.selected = true;
+							if (this.userSettings[setting].value.selected === this.userSettings[setting].value.options[i]) setting_option.selected = true;
 
 							setting_input.appendChild(setting_option);
 						}
@@ -322,20 +370,20 @@ var TimeKeeper = {
 				}
 				setting_input.classList.add('setting_input');
 				setting_input.id = setting;
-				setting_input.dataset.type = typeof this._settings[setting].value;
+				setting_input.dataset.type = typeof this.userSettings[setting].value;
 				setting_input.onchange = function(e) {
 
 					var key = e.target.id;
 
 					switch(e.target.dataset.type) {
 						case 'boolean':
-							this.tmpSettings[key].value = e.target.checked;
+							this.unsavedSettings[key].value = e.target.checked;
 						break;
 						case 'string':
-							this.tmpSettings[key].value = e.target.value
+							this.unsavedSettings[key].value = e.target.value
 						break;
 						case 'object':
-							this.tmpSettings[key].value.selected = e.target.value;
+							this.unsavedSettings[key].value.selected = e.target.value;
 						break;
 					}
 
@@ -343,7 +391,7 @@ var TimeKeeper = {
 
 				var setting_desc = document.createElement('p');
 					setting_desc.classList.add('setting_desc');
-					setting_desc.innerHTML = this._settings[setting].description;
+					setting_desc.innerHTML = this.userSettings[setting].description;
 
 
 				setting_item.appendChild(setting_label);
@@ -360,17 +408,20 @@ var TimeKeeper = {
 			function () {
 
 				// save settings to chrome.storage or localStorage
-				if (!!chrome.storage) {
-					chrome.storage.sync.set({'tksettings': JSON.stringify(this.tmpSettings)});
+				if (chrome && chrome.storage) {
+					chrome.storage.sync.set({'tksettings': JSON.stringify(this.unsavedSettings)});
 					console.log('Chrome Storage Saved');
 				}
-				else {
-					localStorage.setItem('tksettings', JSON.stringify(this.tmpSettings));
+				else if (localStorage) {
+					localStorage.setItem('tksettings', JSON.stringify(this.unsavedSettings));
 					console.log('Local Storage Saved');
 				}
+				else {
+					// wow you really have a terrible browser...
+				}
 
-				if (JSON.stringify(this._settings) !== JSON.stringify(this.tmpSettings)) {
-					this._settings = this.tmpSettings;
+				if (JSON.stringify(this.userSettings) !== JSON.stringify(this.unsavedSettings)) {
+					this.userSettings = this.unsavedSettings;
 					this.applySettings();
 				}
 
@@ -382,7 +433,7 @@ var TimeKeeper = {
 
 			}.bind(this),
 			function() {
-				this.tmpSettings = undefined;
+				this.unsavedSettings = undefined;
 			}.bind(this)
 		);
 
@@ -409,7 +460,7 @@ var TimeKeeper = {
 		if (id === false) {
 
 			// stop the update function if the admin time tracking is set to false
-			if (this._settings.Admin_Time.value === false) return;
+			if (this.userSettings.Admin_Time.value === false) return;
 
 			this.admin_time += 1000;
 			this.admin_output.children[2].innerHTML = this.formatRounded(this.admin_time);
@@ -536,7 +587,7 @@ var TimeKeeper = {
 				li_record.appendChild(input_cbox_record);
 				li_record.appendChild(label_record);
 
-			if (this._settings.Record_Sort.value.selected === 'ASC') {
+			if (this.userSettings.Record_Sort.value.selected === 'ASC') {
 				var prevNode = ul.children[2];
 				ul.insertBefore(li_record, prevNode);
 			}
@@ -637,7 +688,7 @@ var TimeKeeper = {
 		this.message(
 			'green',
 			'EXPORT SUCCESSFUL', 
-			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "' + this._settings.Export_Filename.value + 'MM-DD-YYYY.json".'
+			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "' + this.userSettings.Export_Filename.value + 'MM-DD-YYYY.json".'
 		);
 
 	},
@@ -646,7 +697,7 @@ var TimeKeeper = {
 	downloadFile: function(dataURI, fileExt) {
 		var hidden_dl_btn = document.createElement('a');
 		hidden_dl_btn.href = dataURI;
-		hidden_dl_btn.download = this._settings.Export_Filename.value + new Date().toLocaleDateString(navigator.language, {month: '2-digit', day: '2-digit', year: 'numeric'})+'.'+fileExt;
+		hidden_dl_btn.download = this.userSettings.Export_Filename.value + new Date().toLocaleDateString(navigator.language, {month: '2-digit', day: '2-digit', year: 'numeric'})+'.'+fileExt;
 		hidden_dl_btn.style.display = 'none';
 
 		document.body.appendChild(hidden_dl_btn);
@@ -910,7 +961,7 @@ Record.prototype.render = function() {
 		div_record.appendChild(div_timestamps);
 		div_record.appendChild(h3_total);
 
-	if (this.parent._settings.Record_Sort.value.selected === 'ASC') {
+	if (this.parent.userSettings.Record_Sort.value.selected === 'ASC') {
 		var prevNode = this.parent.record_output.children[0];
 		this.parent.record_output.insertBefore(div_record, prevNode);
 	}
@@ -1010,10 +1061,10 @@ Timestamp.prototype.render = function() {
 
 	// Swap out date format settings
 	var dateOptions = {};
-	if (this.parent.parent._settings.Timestamp_Format.value.selected === '24 Hour') {
+	if (this.parent.parent.userSettings.Timestamp_Format.value.selected === '24 Hour') {
 		dateOptions = {hour: '2-digit', minute:'2-digit', hour12: false};
 	}
-	else if (this.parent.parent._settings.Timestamp_Format.value.selected === '12 Hour') {
+	else if (this.parent.parent.userSettings.Timestamp_Format.value.selected === '12 Hour') {
 		dateOptions = {hour: '2-digit', minute:'2-digit', hour12: true};
 	}
 
