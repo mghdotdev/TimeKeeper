@@ -102,11 +102,16 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 		width: 165px;
 		display: inline-block;
 	}
+	.toolbar #recordName_txt:focus {
+		/*background-color: #ffffbb;*/
+	}
+
 	.toolbar.searching #newRecord_btn, .toolbar.searching #settings_btn {
 		display: none;
 	}
 	.toolbar.searching #recordName_txt {
 		width: 100%;
+		display: inline !important;
 	}
 
 	.toolbar.searching #findRecord_btn {
@@ -129,10 +134,11 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 .import[type="file"] {
 	width: 160px;
 }
+.export-wrap {
+	text-align: center;
+}
 .export {
-	display: block;
 	font-size:10px;
-	margin:10px auto;
 }
 
 hr {

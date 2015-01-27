@@ -6,6 +6,8 @@ var TimeKeeper = {
 	admin_time: 0,
 	active: false,
 	searching: false,
+	modifierKey: 'ctrlKey',
+	chromeApp: (chrome && chrome.app && chrome.app.runtime) ? true : false,
 
 	// elements
 	newRecord_form: document.getElementById('newRecord_form'),
@@ -73,19 +75,45 @@ var TimeKeeper = {
 		// Initial Calls and Settings Overrides
 		this.recordName_txt.focus();
 		this.applySettings();
+		if (navigator.platform.indexOf('Mac') >= 0) {
+			this.modifierKey = 'metaKey';
+		}
 
 		// add events
 		window.onkeydown = function(e) {
-
-			var modifierKey = 'ctrlKey';
-			if (navigator.platform.indexOf('Mac') > 0) {
-				modifierKey = 'metaKey';
+			if (e[this.modifierKey] && e.keyCode === 70) {
+				// SUPER + F
+				if (this.searching === false || document.activeElement.id === 'recordName_txt') {
+					this.toggleSearch();
+				}
+				else {
+					this.recordName_txt.focus();
+				}
 			}
-
-			if (e[modifierKey] && e.keyCode === 70) {
-				this.openSearch();
+			else if (e[this.modifierKey] && e.keyCode === 78) {
+				// SUPER + N
+				if (this.searching === true) {
+					this.toggleSearch();
+				}
+				this.recordName_txt.focus();
 			}
-
+			else if (e[this.modifierKey] && e.keyCode === 73) {
+				// SUPER + I
+				if (this.uploadRecord_file.fireEvent) {
+					this.uploadRecord_file.fireEvent('onclick');
+				}
+				else {
+					var dummyEvent = document.createEvent('Events');
+					dummyEvent.initEvent('click', true, false);
+					this.uploadRecord_file.dispatchEvent(dummyEvent);
+				}
+			}
+			else if (e[this.modifierKey] && e.keyCode === 69) {
+				// SUPER + E
+				if (this.records.length > 0) {
+					this.exportToJSON();
+				}
+			}
 		}.bind(this);
 
 		this.newRecord_form.onsubmit = function(e) {
@@ -123,7 +151,7 @@ var TimeKeeper = {
 		}.bind(this);
 
 		this.findRecord_btn.onclick = function(e) {
-			this.openSearch();
+			this.toggleSearch();
 		}.bind(this);
 
 		this.settings_btn.onclick = function(e) {
@@ -212,7 +240,7 @@ var TimeKeeper = {
 		});
 
 	},
-	openSearch: function() {
+	toggleSearch: function() {
 		if (this.searching === false) {
 			document.querySelector('.toolbar').classList.add('searching');
 			this.findRecord_btn.value = '× Close';
@@ -627,9 +655,9 @@ var TimeKeeper = {
 			hidden_dl_btn.fireEvent('onclick');
 		} 
 		else {
-			var evObj = document.createEvent('Events');
-			evObj.initEvent('click', true, false);
-			hidden_dl_btn.dispatchEvent(evObj);
+			var dummyEvent = document.createEvent('Events');
+			dummyEvent.initEvent('click', true, false);
+			hidden_dl_btn.dispatchEvent(dummyEvent);
 		}
 
 		document.body.removeChild(hidden_dl_btn);

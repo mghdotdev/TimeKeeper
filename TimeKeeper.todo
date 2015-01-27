@@ -22,6 +22,8 @@ TODO
 - 20. Dual input for search and add. On key up Record Name input fuzzy search results. Can add record from input
 - 21. Timestamp "weclome message", (before timestamps are added, instructional)
 - 22. Added favicon for non-chrome app version
+- 23. Revamped searching, now it is controled through the "Find" button or super+F
+- 24. Added more keybindings (super+I, super+E, super+N)
 
 BUGS
 ----------------------
