@@ -68,23 +68,54 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 	background-color:#F42434;
 	width: 100%;
 }
+	#newRecord_form {
+		position: relative;
+	}
 	.toolbar input {
 		border:none;
 		outline:none;
 		padding:5px 8px;
 		line-height: 15px;
 	}
-	.toolbar #newRecord_btn, .toolbar #findRecord_btn {
+	.toolbar input[type="submit"], .toolbar input[type="button"] {
 		background-color:#000;
 		color:#fff;
 	}
-	.toolbar #newRecord_btn:focus, .toolbar #findRecord_btn:focus {
+	.toolbar input[type="submit"]:focus, .toolbar input[type="submit"]:hover {
 		background-color:#fff;
 		color:#000;
 	}
-	.toolbar #newRecord_btn:hover, .toolbar #findRecord_btn:hover {
+	.toolbar input[type="button"]:focus, .toolbar input[type="button"]:hover {
 		background-color:#fff;
 		color:#000;
+	}
+
+	.toolbar #settings_btn {
+		background-color:#ccc;
+		color:#000;
+	}
+	.toolbar #settings_btn:focus, .toolbar #settings_btn:hover {
+		background-color:#eee;
+	}
+
+	.toolbar #recordName_txt {
+		width: 165px;
+		display: inline-block;
+	}
+	.toolbar.searching #newRecord_btn, .toolbar.searching #settings_btn {
+		display: none;
+	}
+	.toolbar.searching #recordName_txt {
+		width: 100%;
+	}
+
+	.toolbar.searching #findRecord_btn {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+	.toolbar.searching #findRecord_btn:focus, .toolbar.searching #findRecord_btn:hover {
+		border-left:1px solid #000;
 	}
 
 	

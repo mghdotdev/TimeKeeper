@@ -5,6 +5,7 @@ var TimeKeeper = {
 	records: [],
 	admin_time: 0,
 	active: false,
+	searching: false,
 
 	// elements
 	newRecord_form: document.getElementById('newRecord_form'),
@@ -21,7 +22,6 @@ var TimeKeeper = {
 	_settings: {
 		Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
 		Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
-		// Fuzzy_Search: {value: true, description: 'Turn On/Off the auto searching functionality on the Record Name input box.'},
 		Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
 		Timestamp_Format: {value: {selected: '12 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
 	},
@@ -75,6 +75,19 @@ var TimeKeeper = {
 		this.applySettings();
 
 		// add events
+		window.onkeydown = function(e) {
+
+			var modifierKey = 'ctrlKey';
+			if (navigator.platform.indexOf('Mac') > 0) {
+				modifierKey = 'metaKey';
+			}
+
+			if (e[modifierKey] && e.keyCode === 70) {
+				this.openSearch();
+			}
+
+		}.bind(this);
+
 		this.newRecord_form.onsubmit = function(e) {
 			e.preventDefault();
 			return false;
@@ -85,7 +98,7 @@ var TimeKeeper = {
 			if (e.keyCode === 27) {
 				e.target.value = '';
 			}
-			//if (this.records.length > 0) this.filterRecords(e.target.value);
+			if (this.records.length > 0 && this.searching === true) this.filterRecords(e.target.value);
 		}.bind(this);
 
 		this.newRecord_btn.onclick = function(e) {
@@ -110,7 +123,7 @@ var TimeKeeper = {
 		}.bind(this);
 
 		this.findRecord_btn.onclick = function(e) {
-			this.findRecord(this.recordName_txt.value);
+			this.openSearch();
 		}.bind(this);
 
 		this.settings_btn.onclick = function(e) {
@@ -176,8 +189,6 @@ var TimeKeeper = {
 	},
 	filterRecords: function(searchString) {
 
-		if (this._settings.Fuzzy_Search.value === false) return;
-
 		// onkeyup of the Record Name input, fuzzy search / filter records
 		// dual purpose serves to prevent duplicate naming and quick search
 
@@ -200,6 +211,33 @@ var TimeKeeper = {
 			}
 		});
 
+	},
+	openSearch: function() {
+		if (this.searching === false) {
+			document.querySelector('.toolbar').classList.add('searching');
+			this.findRecord_btn.value = '× Close';
+			
+			// swap default "Enter" option
+			this.findRecord_btn.type = 'submit';
+			this.newRecord_btn.type = 'button';
+
+			// focus input box
+			this.recordName_txt.focus();
+			this.filterRecords(this.recordName_txt.value);
+		}
+		else {
+			document.querySelector('.toolbar').classList.remove('searching');
+			this.findRecord_btn.value = '∗ Find';
+
+			// swap default "Enter" option
+			this.findRecord_btn.type = 'button';
+			this.newRecord_btn.type = 'submit';
+
+			// clear record name input
+			this.recordName_txt.value = '';
+			this.filterRecords(this.recordName_txt.value);
+		}
+		this.searching = !this.searching;
 	},
 
 	openSettings: function() {
