@@ -36,21 +36,20 @@ var TimeKeeper = {
 
 	// functions
 	getSettings: function() {
-		var app = this;
+		this.userSettings = JSON.parse(JSON.stringify(this.defaultSettings));
 		if (chrome && chrome.storage) {
 			chrome.storage.sync.get('tksettings', function(result) {
 				if (!!result.tksettings) {
 					this.userSettings = this.updateSettings(JSON.parse(result.tksettings));
 				}
-				else {
-					this.userSettings = this.defaultSettings;
-				}
-				app.init();
+				this.init();
 			}.bind(this));
 		}
 		else if (localStorage) {
-			this.userSettings = this.updateSettings(JSON.parse(localStorage.getItem('tksettings'))) || this.defaultSettings;
-			app.init();
+			if (localStorage.getItem('tksettings') !== null) {
+				this.userSettings = this.updateSettings(JSON.parse(localStorage.getItem('tksettings')));
+			}
+			this.init();
 		}
 		else {
 			// wow you really have a terrible browser...
@@ -74,7 +73,7 @@ var TimeKeeper = {
 			var settingName = Object.keys(updated)[i];
 
 			// if setting existed in the stored version
-			if (!!stored[settingName]) {
+			if (stored[settingName]) {
 				// if typeof stored value is equal to the current version
 				if (typeof stored[settingName].value === typeof updated[settingName].value) {
 					// if type is object then check the selected propery
