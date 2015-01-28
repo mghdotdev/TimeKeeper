@@ -411,6 +411,7 @@ hr {
 
 	.msg-box .body {
 		padding:15px 15px 60px 15px;
+		position: relative;
 	}
 
 		.msg-box ul {
@@ -516,6 +517,12 @@ hr {
 .settings_wrap {
 	padding: 0;
 }
+
+	.reset_settings {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
 
 	.settings_wrap .setting_item {
 		padding:10px;

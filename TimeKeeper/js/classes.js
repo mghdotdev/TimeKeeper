@@ -328,6 +328,28 @@ var TimeKeeper = {
 		// copy the settings object so we can make changes to it
 		this.unsavedSettings = JSON.parse(JSON.stringify(this.userSettings));
 
+		var btn_reset_settings = document.createElement('input');
+			btn_reset_settings.classList.add('reset_settings');
+			btn_reset_settings.type = 'button';
+			btn_reset_settings.value = '↺ Reset';
+			btn_reset_settings.onclick = function(e) {
+				for (setting in this.defaultSettings) {
+					switch (typeof this.defaultSettings[setting].value) {
+						case 'boolean':
+							document.querySelector('#'+setting).checked = this.defaultSettings[setting].value;
+						break;
+						case 'string':
+							document.querySelector('#'+setting).value = this.defaultSettings[setting].value;
+						break;
+						case 'object':
+							document.querySelector('#'+setting).value = this.defaultSettings[setting].value.selected;
+						break;
+					}
+				}
+				this.unsavedSettings = JSON.parse(JSON.stringify(this.defaultSettings));
+
+			}.bind(this);
+
 		var settings_wrap = document.createElement('div');
 			settings_wrap.classList.add('settings_wrap');
 
@@ -342,7 +364,7 @@ var TimeKeeper = {
 					setting_label.htmlFor = setting;
 
 				var setting_input;
-				switch(typeof this.userSettings[setting].value) { 
+				switch (typeof this.userSettings[setting].value) { 
 					// decide input type from typeof value
 					case 'boolean':
 						setting_input = document.createElement('input');
@@ -375,7 +397,7 @@ var TimeKeeper = {
 
 					var key = e.target.id;
 
-					switch(e.target.dataset.type) {
+					switch (e.target.dataset.type) {
 						case 'boolean':
 							this.unsavedSettings[key].value = e.target.checked;
 						break;
@@ -436,7 +458,8 @@ var TimeKeeper = {
 				this.unsavedSettings = undefined;
 			}.bind(this)
 		);
-
+		
+		document.querySelector('.msg-box .body').appendChild(btn_reset_settings);
 		document.querySelector('.msg-box .body').appendChild(settings_wrap);
 
 		// change the button values
