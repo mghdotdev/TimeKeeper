@@ -40,7 +40,7 @@ BUGS
 - 9. "In Basecamp?" Button not carrying style over for re-imported record.
 - 10. Fix issue of either overwriting the records array or appending it... display appends | class overwrites
 - 11. Fixed max-height issue on Message Box div
-12. while applying admin time on/off the ASC/DESC bugs out, showing the welcome message
+- 12. while applying admin time on/off the ASC/DESC bugs out, showing the welcome message
 13. Safari's weird localeTimeString suff needs to be taken care of
 
 -------------------------------

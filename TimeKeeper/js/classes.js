@@ -104,13 +104,15 @@ var TimeKeeper = {
 		}
 
 		// Record Sorting
-		for (var i = 0; i < this.userSettings.Record_Sort.value.options.length; i++) {
-			record_output.classList.remove(this.userSettings.Record_Sort.value.options[i]);
-		}
-		record_output.classList.add(this.userSettings.Record_Sort.value.selected);
-		var i = record_output.childNodes.length;
-		while (i--) {
-			record_output.appendChild(record_output.childNodes[i]);
+		if (record_output.classList.contains(this.userSettings.Record_Sort.value.selected) === false) {
+			for (var i = 0; i < this.userSettings.Record_Sort.value.options.length; i++) {
+				record_output.classList.remove(this.userSettings.Record_Sort.value.options[i]);
+			}
+			record_output.classList.add(this.userSettings.Record_Sort.value.selected);
+			var i = record_output.childNodes.length;
+			while (i--) {
+				record_output.appendChild(record_output.childNodes[i]);
+			}
 		}
 
 	},
