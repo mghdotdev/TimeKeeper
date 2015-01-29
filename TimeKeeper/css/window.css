@@ -24,12 +24,6 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 	cursor: pointer;
 }
 
-.clearfix:after {
-	content: "";
-	display: table;
-	clear: both;
-}
-
 /* Welcome Box */
 .welcome {
 	padding:15px !important;
@@ -102,7 +96,6 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 	.toolbar #settings_btn {
 		background-color:#ccc;
 		color:#000;
-		float: right;
 	}
 	.toolbar #settings_btn:focus, .toolbar #settings_btn:hover {
 		background-color:#eee;
@@ -110,39 +103,11 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 
 	.toolbar #recordName_txt {
 		width: 165px;
-		display: none;
+		display: inline-block;
 	}
 	.toolbar #recordName_txt:focus {
 		/*background-color: #ffffbb;*/
 	}
-
-	.toolbar #recordTicketId_txt {
-		display: none;
-	}
-
-	/* ADDING */
-
-	.toolbar.adding #findRecord_btn, .toolbar.adding #settings_btn {
-		display: none;
-	}
-	.toolbar.adding #recordName_txt {
-		width: 49%;
-		display: inline !important;
-	}
-	.toolbar.adding #recordTicketId_txt {
-		width: 49%;
-		display: inline !important;
-	}
-	.toolbar.adding #newRecord_btn {
-		position: absolute;
-		right: 0;
-		top: 0;
-	}
-	.toolbar.adding #newRecord_btn:focus, .toolbar.adding #newRecord_btn:hover {
-		border-left:1px solid #000;
-	}
-
-	/* SEARCHING */
 
 	.toolbar.searching #newRecord_btn, .toolbar.searching #settings_btn {
 		display: none;
@@ -151,6 +116,7 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 		width: 100%;
 		display: inline !important;
 	}
+
 	.toolbar.searching #findRecord_btn {
 		position: absolute;
 		right: 0;
