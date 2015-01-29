@@ -180,6 +180,10 @@ hr {
 
 .rounded {
 	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	-o-user-select: text;
+	user-select: text;
 }
 
 #wrap {
@@ -210,25 +214,48 @@ hr {
 
 		.record .name {
 			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			-o-user-select: text;
+			user-select: text;
+		}
+		.record .ticket {
+			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			-o-user-select: text;
+			user-select: text;
 		}
 
-		.actions {
+		.record-actions {
+			padding:0 0 5px 0;
+			text-align: right;
+		}
+			.record-actions input {
+				font-size: 9px;
+				margin-right:5px;
+			}
+			.record-actions input:last-child {
+				margin-right: 0;
+			}
+
+		.timestamp-actions {
 			padding:10px 0;
 			position: relative;
 		}
-			.actions input {
+			.timestamp-actions input {
 				margin-left:5px;
 			}
-			.actions input:first-child {
+			.timestamp-actions input:first-child {
 				margin-left:0;
 			}
 
-			.actions .done-wrap {
+			.timestamp-actions .done-wrap {
 				position: absolute;
 				right: 0;
 				top:13px;
 			}
-				.actions .done-wrap label, .actions .done-wrap input {
+				.timestamp-actions .done-wrap label, .timestamp-actions .done-wrap input {
 					vertical-align: middle;
 				}
 

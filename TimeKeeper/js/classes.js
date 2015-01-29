@@ -853,12 +853,31 @@ Record.prototype.render = function() {
 		}
 		div_record.dataset.recordId = this.guid;
 
+		var div_record_actions = document.createElement('div');
+			div_record_actions.classList.add('record-actions');
+
+				var input_add_ticket = document.createElement('input');
+					input_add_ticket.type = 'button';
+					input_add_ticket.value = '+ Ticket ID';
+					input_add_ticket.title = 'Reference the Ticket ID from basecamp';
+
+				var input_record_delete = document.createElement('input');
+					input_record_delete.type = 'button';
+					input_record_delete.value = '- Delete';
+					input_record_delete.title = 'Delete Record';
+
+				div_record_actions.appendChild(input_add_ticket);
+				div_record_actions.appendChild(input_record_delete);
+
 		var h1_name = document.createElement('h1');
 			h1_name.classList.add('name');
 			h1_name.innerHTML = this.name;
+		var h3_ticket = document.createElement('h3');
+			h3_ticket.classList.add('ticket');
+			h3_ticket.innerHTML = '';
 
-		var div_actions = document.createElement('div');
-			div_actions.classList.add('actions');
+		var div_timestamp_actions = document.createElement('div');
+			div_timestamp_actions.classList.add('timestamp-actions');
 
 			var input_open = document.createElement('input');
 				input_open.type = 'button';
@@ -947,9 +966,9 @@ Record.prototype.render = function() {
 				div_doneWrap.appendChild(label);
 				div_doneWrap.appendChild(input_checkbox);
 
-			div_actions.appendChild(input_open);
-			div_actions.appendChild(input_delete);
-			div_actions.appendChild(div_doneWrap);
+			div_timestamp_actions.appendChild(input_open);
+			div_timestamp_actions.appendChild(input_delete);
+			div_timestamp_actions.appendChild(div_doneWrap);
 
 		var div_timestamps = document.createElement('div');
 			div_timestamps.classList.add('timestamps');
@@ -980,8 +999,10 @@ Record.prototype.render = function() {
 			h3_total.appendChild(span_rounded);
 			h3_total.appendChild(span_actual);
 
+		div_record.appendChild(div_record_actions);
 		div_record.appendChild(h1_name);
-		div_record.appendChild(div_actions);
+		div_record.appendChild(h3_ticket);
+		div_record.appendChild(div_timestamp_actions);
 		div_record.appendChild(div_timestamps);
 		div_record.appendChild(h3_total);
 
