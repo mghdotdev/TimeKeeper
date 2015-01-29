@@ -9,6 +9,7 @@ var TimeKeeper = {
 	admin_time: 0,
 	active: false,
 	searching: false,
+	adding:false,
 	modifierKey: 'ctrlKey',
 	chromeApp: (chrome && chrome.app) ? true : false,
 	version: (chrome && chrome.runtime) ? chrome.runtime.getManifest().version : '2.0.0',
@@ -120,7 +121,6 @@ var TimeKeeper = {
 	init: function() {
 
 		// Initial Calls and Settings Overrides
-		this.recordName_txt.focus();
 		this.applySettings();
 		if (navigator.platform.indexOf('Mac') >= 0) {
 			this.modifierKey = 'metaKey';
@@ -144,7 +144,8 @@ var TimeKeeper = {
 				if (this.searching === true) {
 					this.toggleSearch();
 				}
-				this.recordName_txt.focus();
+				
+				this.toggleAdding();
 			}
 			else if (e[this.modifierKey] && e.keyCode === 73) {
 				// SUPER + I
@@ -180,22 +181,24 @@ var TimeKeeper = {
 
 		this.newRecord_btn.onclick = function(e) {
 
-			var regex = new RegExp(/[a-z0-9]{1,}/i);
-			if (regex.test(this.recordName_txt.value) === false) {
-				this.message(
-					'red',
-					'INVALID RECORD NAME',
-					'Record Name is either empty or invalid. You must specify an alpha-numeric name before adding a new record.<br><br>This could be the client\'s URL, ticket number or name.',
-					function() {
-						this.recordName_txt.focus();
-					}.bind(this)
-				);
-				return
-			}
-			this.addRecord();
+			if (this.adding === true) {
+				
+				var regex = new RegExp(/[a-z0-9]{1,}/i);
+				if (regex.test(this.recordName_txt.value) === false) {
+					this.message(
+						'red',
+						'INVALID RECORD NAME',
+						'Record Name is either empty or invalid. You must specify an alpha-numeric name before adding a new record.<br><br>This could be the client\'s URL, ticket number or name.',
+						function() {
+							this.recordName_txt.focus();
+						}.bind(this)
+					);
+					return
+				}
+				this.addRecord();
 
-			// clear recordName_txt input
-			this.recordName_txt.value = '';
+			}
+			this.toggleAdding();
 
 		}.bind(this);
 
@@ -289,6 +292,27 @@ var TimeKeeper = {
 		});
 
 	},
+	toggleAdding: function() {
+		if (this.adding === false) {
+			document.querySelector('.toolbar').classList.add('adding');
+
+			// swap default "Enter" option
+			this.newRecord_btn.type = 'submit';
+
+			// focus input box
+			this.recordName_txt.focus();
+		}
+		else {
+			document.querySelector('.toolbar').classList.remove('adding');
+
+			// swap default "Enter" option
+			this.newRecord_btn.type = 'button';
+
+			// clear record name input
+			this.recordName_txt.value = '';
+		}
+		this.adding = !this.adding;
+	},
 	toggleSearch: function() {
 		if (this.searching === false) {
 			document.querySelector('.toolbar').classList.add('searching');
@@ -296,7 +320,6 @@ var TimeKeeper = {
 			
 			// swap default "Enter" option
 			this.findRecord_btn.type = 'submit';
-			this.newRecord_btn.type = 'button';
 
 			// focus input box
 			this.recordName_txt.focus();
@@ -308,7 +331,6 @@ var TimeKeeper = {
 
 			// swap default "Enter" option
 			this.findRecord_btn.type = 'button';
-			this.newRecord_btn.type = 'submit';
 
 			// clear record name input
 			this.recordName_txt.value = '';
