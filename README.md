@@ -3,7 +3,7 @@
 ### What is it?
 TimeKeeper makes it easy to keep track of billable hours while working with clients. It also records your Admin time whenever a record is not active!
 
-### How to use it:
+### How to use it
 To get started either... Create a New Record or Import from a JSON File.
 
 Once a Record has been created, you can Open a Timestamp and begin working.
