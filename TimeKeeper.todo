@@ -45,6 +45,7 @@ BUGS
 - 12. while applying admin time on/off the ASC/DESC bugs out, showing the welcome message
 13. Safari's weird localeTimeString suff needs to be taken care of
 - 14. Timestamps delete feature does not accuratly remove totals
+15. apply the line-height hack to the h3 total on records
 
 -------------------------------
 - = done | ! = important
