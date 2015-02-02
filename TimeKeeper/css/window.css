@@ -14,6 +14,7 @@ body {
 	margin:0;
 	min-width: 250px;
 	background-color:#e0e0e0;
+	line-height: 1; /* line height hack to fix special characters position in the :before/:after content */
 }
 
 input {
