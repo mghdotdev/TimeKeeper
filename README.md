@@ -23,13 +23,11 @@ Substitute [x] with the described value.
   "records": [
     {
       "name": [string],
-      "total": [milliseconds],
       "done": [boolean],
       "timestamps": [
         {
           "from": [unix timestamp],
-          "to": [unix timestamp],
-          "difference": [milliseconds]
+          "to": [unix timestamp]
         }
       ]
     }

@@ -224,14 +224,14 @@ var TimeKeeper = {
 	},
 
 	// *ADDING / REMOVING NEW RECORDS
-	addRecord: function(guid, name, total, done) {
+	addRecord: function(guid, name, done) {
 		// default values
 		guid = guid || this.guid();
 		name = name || this.recordName_txt.value;
-		total = total || 0;
 		done = (done === true) ? true : false;
+		var total = 0;
 
-		var record = new Record(guid, name, total, done, this);
+		var record = new Record(guid, name, done, this);
 		this.records.push(record);
 	},
 	removeRecord: function(guid) {
@@ -487,8 +487,8 @@ var TimeKeeper = {
 			if (this.userSettings.Admin_Time.value === false) return;
 
 			this.admin_time += 1000;
-			this.admin_output.children[2].innerHTML = this.formatRounded(this.admin_time);
-			this.admin_output.children[3].innerHTML = this.formatActual(this.admin_time);
+			this.admin_output.querySelector('.rounded').innerHTML = this.formatRounded(this.admin_time);
+			this.admin_output.querySelector('.actual').innerHTML = this.formatActual(this.admin_time);
 		}
 		else {
 			var r = id.split('||')[0];
@@ -504,12 +504,8 @@ var TimeKeeper = {
 			this.records[r].total += 1000;
 			this.records[r].timestamps[t].difference += 1000;
 
-			this.records[r].el.querySelector('.total .rounded').innerHTML = this.formatRounded(this.records[r].total);
-			this.records[r].el.querySelector('.total .actual').innerHTML = this.formatActual(this.records[r].total);
-
-			this.records[r].timestamps[t].el.querySelector('.difference .rounded').innerHTML = this.formatRounded(this.records[r].timestamps[t].difference);
-			this.records[r].timestamps[t].el.querySelector('.difference .actual').innerHTML = this.formatActual(this.records[r].timestamps[t].difference);
-
+			this.records[r].displayTotal();
+			this.records[r].timestamps[t].displayTotal();
 		}
 	},
 
@@ -634,16 +630,15 @@ var TimeKeeper = {
 				}
 
 				if (selectedRecords.indexOf('a') !== -1) this.admin_time = data.admin_time;
-				//this.records = [];
 
 				for (var i = 0; i < data.records.length; i++) {
 					if (selectedRecords.indexOf(String(i)) === -1) continue;
 
-					this.addRecord(data.records[i].guid, data.records[i].name, data.records[i].total, data.records[i].done);
+					this.addRecord(data.records[i].guid, data.records[i].name, data.records[i].done);
 					var r_id = this.records.length - 1;
 
 					for (var j = 0; j < data.records[i].timestamps.length; j++) {
-						this.records[r_id].openTimestamp(data.records[i].timestamps[j].guid, new Date(data.records[i].timestamps[j].from), new Date(data.records[i].timestamps[j].to), data.records[i].timestamps[j].difference, false);
+						this.records[r_id].openTimestamp(data.records[i].timestamps[j].guid, new Date(data.records[i].timestamps[j].from), new Date(data.records[i].timestamps[j].to), false);
 					}
 				}
 			}.bind(this),
@@ -686,20 +681,14 @@ var TimeKeeper = {
 			}
 
 			var record = {};
-
-			//record.guid = this.records[i].guid; // REMOVED To prevent duplicate entries
 			record.name = this.records[i].name;
-			record.total = this.records[i].total;
 			record.done = this.records[i].done;
 			record.timestamps = [];
 			for (var j = 0; j < this.records[i].timestamps.length; j++) {
 
 				var timestamp = {};
-
-				// timestamp.guid = this.records[i].timestamps[j].guid; // REMOVED To prevent duplicate entries
 				timestamp.from = this.records[i].timestamps[j].from.getTime();
 				timestamp.to = this.records[i].timestamps[j].to.getTime();
-				timestamp.difference = this.records[i].timestamps[j].difference;
 
 				record.timestamps.push(timestamp);
 			}
@@ -830,18 +819,17 @@ TimeKeeper.getSettings();
 
 
 // Record Class
-function Record(guid, name, total, done, parent) {
+function Record(guid, name, done, parent) {
 	this.guid = guid;
 	this.parent = parent;
 	this.name = name;
 	this.timestamps = [];
 	this.selectedTimestamps = [];
-	this.total = total;
+	this.total = 0;
 	this.active = false;
 	this.done = done;
 
 	this.render();
-
 }
 Record.prototype.render = function() {
 	// html template
@@ -1000,14 +988,17 @@ Record.prototype.render = function() {
 	this.timestamp_output = div_timestamps;
 	
 };
-Record.prototype.openTimestamp = function(guid, from, to, difference, active) {
+Record.prototype.openTimestamp = function(guid, from, to, active) {
 
 	// default values
 	guid = guid || this.parent.guid();
 	from = from || new Date();
 	to = to || undefined;
-	difference = difference || 0;
 	active = (active === false) ? false : true;
+	var difference = 0;
+	if (to !== undefined) {
+		difference = to - from;
+	}
 
 	var timestamp = new Timestamp(guid, from, to, difference, active, this);
 	this.timestamps.push(timestamp);
@@ -1016,6 +1007,8 @@ Record.prototype.openTimestamp = function(guid, from, to, difference, active) {
 		this.parent.admin_output.classList.remove('active');
 		this.parent.active = this.guid+'||'+guid
 	}
+	this.total += difference;
+	this.displayTotal();
 };
 Record.prototype.closeTimestamp = function() {
 	for (var i = 0; i < this.timestamps.length; i++) {
@@ -1024,6 +1017,8 @@ Record.prototype.closeTimestamp = function() {
 			this.active = false;
 			this.timestamps[i].active = false;
 			this.timestamps[i].to = new Date();
+
+			this.timestamps[i].difference = this.timestamps[i].to - this.timestamps[i].from;
 
 			var old_render = this.timestamps[i].el.remove();
 			this.timestamps[i].render();
@@ -1062,11 +1057,10 @@ Record.prototype.deleteTimestamps = function() {
 	// recalculate total
 	this.total -= totalMinus;
 
-	// re-display total
-	this.el.querySelector('.total .rounded').innerHTML = this.parent.formatRounded(this.total);
-	this.el.querySelector('.total .actual').innerHTML = this.parent.formatActual(this.total);
+	// squashes bug with not turning off selected total and also updates total display
+	this.displayTotal();
 }
-Record.prototype.calculateSelectedTotal = function() {
+Record.prototype.displayTotal = function() {
 
 	// OnChange of timestamp checkboxes...
 	// Loop through the "selectedTimestamps" array and calculate a total
@@ -1167,7 +1161,7 @@ Timestamp.prototype.render = function() {
 				}
 
 				// Selective timestamp total
-				this.parent.calculateSelectedTotal();
+				this.parent.displayTotal();
 
 			}.bind(this);
 		var span_from = document.createElement('span');
@@ -1206,4 +1200,8 @@ Timestamp.prototype.render = function() {
 
 	// define this parameters
 	this.el = div_time;
+};
+Timestamp.prototype.displayTotal = function() {
+	this.el.querySelector('.difference .rounded').innerHTML = this.parent.parent.formatRounded(this.difference);
+	this.el.querySelector('.difference .actual').innerHTML = this.parent.parent.formatActual(this.difference);
 };

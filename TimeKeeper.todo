@@ -27,7 +27,7 @@ TODO
 ! 25. Restructure and organize CSS / JS files
 - 26. add reset settings button to settings box
 - 27. re-add the selected totals
-28. Change the export file format, remove totals and differences 
+- 28. Change the export file format, remove totals and differences 
 
 BUGS
 ----------------------
@@ -44,7 +44,7 @@ BUGS
 - 11. Fixed max-height issue on Message Box div
 - 12. while applying admin time on/off the ASC/DESC bugs out, showing the welcome message
 13. Safari's weird localeTimeString suff needs to be taken care of
-14. Timestamps delete feature does not accuratly remove totals
+- 14. Timestamps delete feature does not accuratly remove totals
 
 -------------------------------
 - = done | ! = important
