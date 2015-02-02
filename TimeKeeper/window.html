@@ -24,13 +24,13 @@
 			<span class="text">Admin</span><span> &mdash; </span><span class="rounded">0</span><span class="actual">0h 0m</span>
 		</div>
 		<div id="record_output" class="records">
-			<div class="content-block welcome">
+			<div class="content-block welcome-box">
 				<h1>Welcome to TimeKeeper!</h1>
 				<p>TimeKeeper makes it easy to keep track of billable hours while working with clients. It also records your Admin time whenever a record is not active! To get started either...</p>
-				<div class="start-options">
-					<h2 class="start-option"><label for="recordName_txt">Create a New Record</label></h2>
+				<div class="start-choices">
+					<h2 class="start-choice"><label for="recordName_txt">Create a New Record</label></h2>
 					<em>or</em>
-					<h2 class="start-option"><label for="uploadRecord_file">Import from a JSON File</label></h2>
+					<h2 class="start-choice"><label for="uploadRecord_file">Import from a JSON File</label></h2>
 				</div>
 				<p>Once a Record has been created, you can Open a Timestamp and begin working.</p>
 				<p>After you're finished working press the Close button. The time elapsed will be rounded to the nearest 0.25 hour and calculated towards the Record total.</p>
@@ -39,15 +39,15 @@
 	</div>
 
 	<div class="import-wrap">
-		<input type="file" id="uploadRecord_file" class="import" />
+		<input type="file" id="uploadRecord_file" class="import-btn" />
 		<label for="uploadRecord_file">Import from JSON</label>
 	</div>
 	<hr>
 	<div class="export-wrap">
-		<input type="button" id="exportRecord_btn" value="&larr; Export to JSON" class="export" />
+		<input type="button" id="exportRecord_btn" value="&larr; Export to JSON" class="export-btn" />
 	</div>
-	<div class="info-wrap">
-		<ul class="info">
+	<div class="app-info-wrap">
+		<ul class="app-info">
 			<!-- <li class="copyright">&copy; Max Hegler, 2015</li> -->
 			<li class="version"></li>
 		</ul>

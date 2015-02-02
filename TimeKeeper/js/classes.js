@@ -125,7 +125,7 @@ var TimeKeeper = {
 		if (navigator.platform.indexOf('Mac') >= 0) {
 			this.modifierKey = 'metaKey';
 		}
-		document.querySelector('.info .version').innerHTML = 'Version: ' + this.version;
+		document.querySelector('.app-info .version').innerHTML = 'Version: ' + this.version;
 		
 
 		// add events
@@ -146,8 +146,8 @@ var TimeKeeper = {
 				}
 				this.recordName_txt.focus();
 			}
-			else if (e[this.modifierKey] && e.keyCode === 73) {
-				// SUPER + I
+			else if (e[this.modifierKey] && e.keyCode === 79) {
+				// SUPER + O
 				if (this.uploadRecord_file.fireEvent) {
 					this.uploadRecord_file.fireEvent('onclick');
 				}
@@ -1066,6 +1066,37 @@ Record.prototype.deleteTimestamps = function() {
 	this.el.querySelector('.total .rounded').innerHTML = this.parent.formatRounded(this.total);
 	this.el.querySelector('.total .actual').innerHTML = this.parent.formatActual(this.total);
 }
+Record.prototype.calculateSelectedTotal = function() {
+
+	// OnChange of timestamp checkboxes...
+	// Loop through the "selectedTimestamps" array and calculate a total
+	// Display the total onto the record card
+
+	var selectedTotal = 0;
+	for (var i = 0; i < this.selectedTimestamps.length; i++) {
+		var id = this.getTimestampID(this.selectedTimestamps[i]);
+		selectedTotal += this.timestamps[id].difference;
+	}
+
+	if (selectedTotal === 0) {
+
+		// remove selected-total class
+		this.el.querySelector('.total').classList.remove('selected-total');
+
+		// re-display total
+		this.el.querySelector('.total .rounded').innerHTML = this.parent.formatRounded(this.total);
+		this.el.querySelector('.total .actual').innerHTML = this.parent.formatActual(this.total);
+	}
+	else {
+
+		// add selected-total class
+		this.el.querySelector('.total').classList.add('selected-total');
+
+		this.el.querySelector('.total .rounded').innerHTML = this.parent.formatRounded(selectedTotal);
+		this.el.querySelector('.total .actual').innerHTML = this.parent.formatActual(selectedTotal);
+	}
+
+};
 
 
 // Timestamp Class
@@ -1117,6 +1148,7 @@ Timestamp.prototype.render = function() {
 			input_checkbox.tabIndex = -1;
 			input_checkbox.onchange = function(e) {
 
+				// Timestamp delete system
 				var index = this.parent.selectedTimestamps.indexOf(this.guid);
 
 				if (e.target.checked === true) {
@@ -1133,6 +1165,9 @@ Timestamp.prototype.render = function() {
 				else {
 					this.parent.timestamp_delete.disabled = '';
 				}
+
+				// Selective timestamp total
+				this.parent.calculateSelectedTotal();
 
 			}.bind(this);
 		var span_from = document.createElement('span');
