@@ -242,7 +242,7 @@ hr {
 	.admin {
 		font-weight: bold;
 	}
-	.admin:after {
+	.admin-wrap .admin:after {
 		content: " — ";
 	}
 
