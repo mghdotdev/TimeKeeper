@@ -163,8 +163,8 @@ hr {
 	text-align: center;
 }
 	
-	.import-btn,
-	.export-btn {
+	.import-wrap input,
+	.export-wrap input {
 		font-size: 10px;
 	}
 
