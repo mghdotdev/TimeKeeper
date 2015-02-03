@@ -1,3 +1,24 @@
+/**
+ * TimeKeeper by Max Hegler, 2015
+ * Version: 2.0.0
+ * ================================================================================
+ * Distinct Sections:
+ * - General Tag Styles / Global Classes 
+ * - Styles Related to Class Structure and Objects
+ * - Animations
+ * - Message Box Popup Window
+ *
+ *
+ */
+
+/* ================================================================================
+ General Tag Styles / Global Application Elements
+ 	- General
+ 	- Toolbar
+ 	- Import/Export
+ 	- Application Info
+ ================================================================================ */
+
 * {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -5,25 +26,473 @@
 	margin:0;
 }
 
-html {
-	overflow-y:scroll;
-}
-
+html { overflow-y:scroll; }
 body {
 	font-family: monospace;
-	margin:0;
 	min-width: 250px;
-	background-color:#e0e0e0;
-	line-height: 1; /* line height hack to fix special characters position in the :before/:after content */
+	background-color: #e0e0e0;
+
+	/**
+	Fixes special characters that expand
+	containers past their normal-text height
+	*/
+	line-height: 1;
 }
 
-input {
-	font-family: monospace;
-}
+/**
+Force input tags to also adopt 
+the body's font size
+*/
+input { font-family: monospace; }
 
-input[type="button"], input[type="submit"], input[type="file"], label {
+/**
+Preserve browser compatibility and
+force input types below to have a
+cursor pointer
+*/
+input[type="button"], 
+input[type="submit"], 
+input[type="file"], label {
 	cursor: pointer;
 }
+
+hr {
+	margin:10px 0;
+	display: block;
+}
+
+#app {
+	padding-bottom: 10px;
+}
+
+.active:after {
+	content: "[active]";
+	color: #009900;
+	margin-left: 5px;
+
+	-webkit-animation: Active 1s linear infinite alternate;
+	-o-animation: Active 1s linear infinite alternate;
+	animation: Active 1s linear infinite alternate;
+}
+
+.blur {
+	-webkit-filter: blur(3px);
+	-moz-filter: blur(3px);
+	-o-filter: blur(3px);
+	-ms-filter: blur(3px);
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'w3.org/2000/svg\'><filter id=\'blur\' x=\'0\' y=\'0\'><feGaussianBlur stdDeviation=\'3\'/></filter></svg>#blur"); 
+}
+
+.highlight {
+	-webkit-animation: Highlight 1s linear;
+	-o-animation: Highlight 1s linear;
+	animation: Highlight 1s linear;
+}
+
+/* Toolbar - Add New / Search / Settings
+ ================================================================================ */
+.toolbar {
+	padding: 10px;
+	background-color: #F42434;
+	width: 100%;
+}
+
+	.toolbar form {
+		position: relative;
+	}
+
+		.toolbar input {
+			border: none;
+			outline: none;
+			padding: 5px 8px;
+			line-height: 15px;
+		}
+
+		.toolbar input[type="text"] {
+			display: inline-block;
+			width: 165px;
+		}
+
+		.toolbar input[type="submit"], 
+		.toolbar input[type="button"] {
+			background-color: #000;
+			color: #fff;
+		}
+		.toolbar input[type="submit"]:focus,
+		.toolbar input[type="button"]:focus,
+		.toolbar input[type="submit"]:hover,
+		.toolbar input[type="button"]:hover {
+			background-color:#fff;
+			color: #000;
+		}
+
+		/* Settings Button */
+		.toolbar #settings_btn {
+			background-color:#ccc;
+			color: #000;
+		}
+		.toolbar #settings_btn:focus, 
+		.toolbar #settings_btn:hover {
+			background-color: #eee;
+		}
+
+/* Toolbar State: Searching */
+.toolbar.searching #recordName_txt {
+	width: 100%;
+}
+
+.toolbar.searching #newRecord_btn, 
+.toolbar.searching #settings_btn {
+	display: none;
+}
+
+.toolbar.searching #findRecord_btn {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.toolbar.searching #findRecord_btn:focus, 
+.toolbar.searching #findRecord_btn:hover {
+	border-left: 1px solid #000;
+}
+
+/* Import / Export - Inputs for importing and exporting app data 
+ ================================================================================ */
+.import-wrap,
+.export-wrap {
+	text-align: center;
+}
+	
+	.import-btn,
+	.export-btn {
+		font-size: 10px;
+	}
+
+	.import-wrap input[type="file"] {
+		width: 160px;
+	}
+
+/* Application Information - Version # and Copyright 
+ ================================================================================ */
+.app-info-wrap {
+	margin-top: 10px;
+}
+
+	.app-info {
+		padding: 0;
+		text-align: center;
+	}
+
+		.app-info li {
+			list-style: none;
+			display: inline-block;
+			color: #999;
+		}
+		.app-info li:before {
+			content: " | ";
+		}
+		.app-info li:first-child:before {
+			content: "";
+		}
+
+
+/* ================================================================================
+ Class Structure Tags and Classes
+ 	- Main / General Styles
+ 	- Admin Time
+ 	- Welcome Box
+ 	- Record
+ 	- Timestamp
+ ================================================================================ */
+
+#main {
+	padding: 10px;
+}
+
+.content-block {
+	background-color: #fff;
+	padding: 10px;
+	border-radius: 3px;
+	-webkit-box-shadow: 1px 1px 1px #999;
+	box-shadow: 1px 1px 1px #999;
+	margin-bottom: 10px;
+}
+
+.rounded {
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	-o-user-select: text;
+	user-select: text;
+}
+
+.actual:before {
+	content: " (";
+}
+.actual:after {
+	content: ")";
+}
+
+/* Admin Time - Tracks the downtime between client work
+ ================================================================================ */
+.admin-wrap {
+
+}
+
+	.admin {
+		font-weight: bold;
+	}
+	.admin:after {
+		content: " — ";
+	}
+
+/* Record - Classes that are used to style the Record class
+ ================================================================================ */
+
+/* Timestamp - Classes that are used to style the Timestamp class
+ ================================================================================ */
+
+
+/* ================================================================================
+ Animations
+ 	- Active
+ 	- Highlight
+ ================================================================================ */
+
+@-webkit-keyframes Active {
+	from { color: #009900; }
+	to { color: #00cc00; }
+}
+@-o-keyframes Active {
+	from { color: #009900; }
+	to { color: #00cc00; }
+}
+@-moz-keyframes Active {
+	from { color: #009900; }
+	to { color: #00cc00; }
+}
+@keyframes Active {
+	from { color: #009900; }
+	to { color: #00cc00; }
+}
+
+@-webkit-keyframes Highlight {
+	from { background-color: #ffffbb; }
+	to { background-color: #fff; }
+}
+@-o-keyframes Highlight {
+	from { background-color: #ffffbb; }
+	to { background-color: #fff; }
+}
+@-moz-keyframes Highlight {
+	from { background-color: #ffffbb; }
+	to { background-color: #fff; }
+}
+@keyframes Highlight {
+	from { background-color: #ffffbb; }
+	to { background-color: #fff; }
+}
+
+
+/* ================================================================================
+ Message Box Popup Window
+ 	- General
+ 	- List
+ 	- Settings
+ ================================================================================ */
+
+.msg-container {
+	position: fixed;
+	top:0;
+	left:0;
+	height: 100%;
+	width: 100%;
+	pointer-events: auto;
+}
+
+	.msg-box {
+		max-width: 350px;
+		max-height: 95%;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		-webkit-transform: translate(-50%, -50%);
+		-ms-transform: translate(-50%, -50%);
+		-o-transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%);
+		
+		background-color: #fff;
+		border-radius: 3px;
+
+		position: relative;
+		z-index: 1000;
+		overflow: hidden;
+		pointer-events: auto;
+	}
+		
+		.msg-box .header {
+			width: 100%;
+			text-align: center;
+			padding: 10px 0;
+			background-color: #ccc;
+		}
+		.msg-box .header.red { background-color:#ff3333; }
+		.msg-box .header.orange { background-color:#ff9933; }
+		.msg-box .header.green { background-color:#33ff66; }
+		.msg-box .header.grey { background-color:#999; }
+
+		.msg-box .body {
+			padding: 15px 15px 60px 15px;
+			position: relative;
+		}
+
+	.msg-buttons {
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		border-top: 2px solid #ccc;
+	}
+
+		.msg-buttons input {
+			border: none;
+			width: 100%;
+			background-color: #fff;
+			padding: 10px;
+			outline: none;
+		}
+		.msg-buttons input:first-child {
+			border-right: 1px solid #ccc;
+			display: none;
+		}
+		.msg-buttons input:focus {
+			background-color: #eee;
+		}
+
+	.msg-container .fade {
+		height: 100%;
+		width: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		background-color: rgba(0,0,0, 0.5);
+		-webkit-transition: all 0.25s;
+		-o-transition: all 0.25s;
+		transition: all 0.25s;
+	}
+
+/* Message Box State: Closed */
+.msg-container.closed {
+	pointer-events: none;
+}
+	.msg-container.closed .msg-box {
+		display: none;
+	}
+	.msg-container.closed .fade {
+		background-color: rgba(0,0,0,0);
+	}
+
+/* Message Box State: Prompt Box */
+.msg-container.prompt .msg-buttons input {
+	width: 50%;
+}
+.msg-container.prompt .msg-buttons input:first-child {
+
+	/* Essentially, show the second, hidden button */
+	display: inline;
+}
+
+/* Message Box Select List - Used for selective importing, etc...
+ ================================================================================ */
+.msg-box .body ul {
+	margin-top: 10px;
+	padding: 0;
+}
+
+	.msg-box .body li {
+		list-style: none;
+		position: relative;
+		border-bottom: 1px solid #ccc;
+	}
+	.msg-box .body li:last-child {
+		border-bottom: none;
+	}
+		.msg-box .body li input {
+			vertical-align: middle;
+			position: absolute;
+			left: 10px;
+			
+			/* Same as Padding top/bottom of label */
+			top: 5px;
+		}
+		.msg-box .body li label {
+			display: block;
+			height: 100%;
+			padding: 5px 0 5px 30px;
+		}
+	
+	/* Select All Header */
+	.msg-box .body .row-header {
+		border-bottom: 4px double #ccc;
+		background-color: #eee;
+		text-transform: uppercase;
+	}
+		.msg-box .body .row-header input {
+			top: 10px;
+		}
+		.msg-box .body .row-header label {
+			padding: 10px 0 10px 30px;
+		}
+
+/* Message Box Settings Menu - Display and edit settings from inside the message box
+ ================================================================================ */
+.msg-box .settings-reset-btn {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+
+.msg-box .settings-wrap {
+	padding: 0;
+}
+
+	.msg-box .setting-item {
+		padding: 10px;
+		border-bottom: 1px solid #ccc;
+	}
+	.msg-box .setting-item:nth-child(2n) {
+		background-color: #f9f9f9;
+	}
+	.msg-box .setting-item:last-child {
+		border-bottom: none;
+	}
+
+		.msg-box .setting-label {
+			font-size: 12px;
+		}
+		.msg-box .setting-label:after {
+			content: ":";
+		}
+		
+		.msg-box .setting-input {
+			margin-left: 10px;
+		}
+		
+		.msg-box .setting-desc {
+			padding: 5px 0;
+			font-size: 10px;
+			color: #999;
+		}
+
+
+
+
+
+
+
+
+
+/*----+======== unsorted =======+------*/
+
 
 /* Welcome Box */
 .welcome-box {
@@ -63,147 +532,10 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 	display: block;
 }
 
-#app {
-	padding-bottom:10px;
-}
 
-.toolbar {
-	padding:10px;
-	background-color:#F42434;
-	width: 100%;
-}
-	#newRecord_form {
-		position: relative;
-	}
-	.toolbar input {
-		border:none;
-		outline:none;
-		padding:5px 8px;
-		line-height: 15px;
-	}
-	.toolbar input[type="submit"], .toolbar input[type="button"] {
-		background-color:#000;
-		color:#fff;
-	}
-	.toolbar input[type="submit"]:focus, .toolbar input[type="submit"]:hover {
-		background-color:#fff;
-		color:#000;
-	}
-	.toolbar input[type="button"]:focus, .toolbar input[type="button"]:hover {
-		background-color:#fff;
-		color:#000;
-	}
-
-	.toolbar #settings_btn {
-		background-color:#ccc;
-		color:#000;
-	}
-	.toolbar #settings_btn:focus, .toolbar #settings_btn:hover {
-		background-color:#eee;
-	}
-
-	.toolbar #recordName_txt {
-		width: 165px;
-		display: inline-block;
-	}
-	.toolbar #recordName_txt:focus {
-		/*background-color: #ffffbb;*/
-	}
-
-	.toolbar.searching #newRecord_btn, .toolbar.searching #settings_btn {
-		display: none;
-	}
-	.toolbar.searching #recordName_txt {
-		width: 100%;
-		display: inline !important;
-	}
-
-	.toolbar.searching #findRecord_btn {
-		position: absolute;
-		right: 0;
-		top: 0;
-	}
-	.toolbar.searching #findRecord_btn:focus, .toolbar.searching #findRecord_btn:hover {
-		border-left:1px solid #000;
-	}
-
-	
-
-.import-wrap {
-	text-align: center;
-}
-.import-btn {
-	font-size: 10px;
-}
-.import-btn[type="file"] {
-	width: 160px;
-}
-.export-wrap {
-	text-align: center;
-}
-.export-btn {
-	font-size:10px;
-}
-
-.app-info-wrap {
-	margin-top: 20px;
-}
-	.app-info {
-		padding:0;
-		margin: 0;
-		text-align: center;
-	}
-		.app-info li {
-			list-style: none;
-			display: inline-block;
-			color:#999;
-		}
-		.app-info li:before {
-			content: " | ";
-		}
-		.app-info li:first-child:before {
-			content: "";
-		}
-
-#app hr {
-	margin:10px 0;
-	display: block;
-}
-
-.content-block {
-	background-color:#fff;
-	padding:10px;
-	border-radius: 3px;
-	-webkit-box-shadow: 1px 1px 1px #999;
-	box-shadow: 1px 1px 1px #999;
-	margin-bottom:10px;
-}
-
-.rounded {
-	-webkit-user-select: text;
-	-moz-user-select: text;
-	-ms-user-select: text;
-	-o-user-select: text;
-	user-select: text;
-}
-
-#wrap {
-	padding:10px;
-}
-
-.text {
-	font-weight: bold;
-}
 
 .records {
 }
-
-	.actual:before {
-		content:" (";
-	}
-	.actual:after {
-		content:")";
-	}
 
 		.record {
 			position: relative;
@@ -299,267 +631,3 @@ input[type="button"], input[type="submit"], input[type="file"], label {
 	.selected-total:before {
 		content: "✓ "
 	}
-
-/* Active Animation */
-	
-	@-webkit-keyframes Active {
-		from { color:#009900; }
-		to { color:#00cc00; }
-	}
-	@-o-keyframes Active {
-		from { color:#009900; }
-		to { color:#00cc00; }
-	}
-	@-moz-keyframes Active {
-		from { color:#009900; }
-		to { color:#00cc00; }
-	}
-	@keyframes Active {
-		from { color:#009900; }
-		to { color:#00cc00; }
-	}
-
-	.active:after {
-		content:"[active]";
-		color:#009900;
-		margin-left:5px;
-
-		-webkit-animation: Active 1s linear infinite alternate;
-		-o-animation: Active 1s linear infinite alternate;
-		animation: Active 1s linear infinite alternate;
-	}
-
-	@-webkit-keyframes Highlight {
-		from { background-color:#ffffbb; }
-		to { background-color:#fff; }
-	}
-	@-o-keyframes Highlight {
-		from { background-color:#ffffbb; }
-		to { background-color:#fff; }
-	}
-	@-moz-keyframes Highlight {
-		from { background-color:#ffffbb; }
-		to { background-color:#fff; }
-	}
-	@keyframes Highlight {
-		from { background-color:#ffffbb; }
-		to { background-color:#fff; }
-	}
-
-	.highlight {
-		-webkit-animation: Highlight 1s linear;
-		-o-animation: Highlight 1s linear;
-		animation: Highlight 1s linear;
-	}
-
-/* -- end */
-
-
-/* MSG BOX */
-
-.blur {
-	-webkit-filter: blur(3px);
-	-moz-filter: blur(3px);
-	-o-filter: blur(3px);
-	-ms-filter: blur(3px);
-	filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='3');
-	/* filter: url("data:image/svg+xml;utf8,<svg xmlns=\'w3.org/2000/svg\'><filter id=\'blur\' x=\'0\' y=\'0\'><feGaussianBlur stdDeviation=\'3\'/></filter></svg>#blur"); */
-}
-
-.msg-container {
-
-	position: fixed;
-	top:0;
-	left:0;
-	height: 100%;
-	width: 100%;
-	pointer-events: auto;
-
-}
-
-.fade {
-	height: 100%;
-	width: 100%;
-	position: absolute;
-	top:0;
-	left:0;
-	background-color:rgba(0,0,0, 0.5);
-	-webkit-transition: all 0.25s;
-	-o-transition: all 0.25s;
-	transition: all 0.25s;
-}	
-
-.msg-box {
-	
-	/*dev*/
-	max-width:350px;
-	/*dev*/
-	
-	max-height: 95%;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	-webkit-transform: translate(-50%, -50%);
-	-ms-transform: translate(-50%, -50%);
-	-o-transform: translate(-50%, -50%);
-	transform: translate(-50%, -50%);
-	
-	background-color:#fff;
-	border-radius: 3px;
-
-	position: relative;
-	z-index: 1000;
-	overflow: hidden;
-	pointer-events: auto;
-
-}
-	
-	.msg-box .header {
-		width:100%;
-		text-align: center;
-		padding:10px 0;
-		background-color:#ccc;
-	}
-
-	.msg-box .body {
-		padding:15px 15px 60px 15px;
-		position: relative;
-	}
-
-		.msg-box ul {
-			margin-top:10px;
-			padding:0;
-		}
-
-			.msg-box li {
-				list-style: none;
-				position: relative;
-				border-bottom:1px solid #ccc;
-			}
-			.msg-box li:last-child {
-				border-bottom: none;
-			}
-				.msg-box li input {
-					vertical-align: middle;
-					position: absolute;
-					left:10px;
-					top:5px; /* Same as Padding top/bottom of label */
-				}
-				.msg-box li label {
-					display: block;
-					height: 100%;
-					width: 100%;
-					padding:5px 0 5px 30px;
-				}
-			.msg-box .row-header {
-				border-bottom:4px double #ccc;
-				background-color:#eee;
-				text-transform: uppercase;
-			}
-				.msg-box .row-header input {
-					top:10px;
-				}
-				.msg-box .row-header label {
-					padding:10px 0 10px 30px;
-				}
-
-	.msg-buttons {
-		position: absolute;
-		bottom:0;
-		width:100%;
-		border-top:2px solid #ccc;
-	}
-
-		.msg-buttons input {
-				
-			border:none;
-			width:100%;
-			background-color:#fff;
-			padding:10px;
-			outline:none;
-
-		}
-		.msg-buttons input:first-child {
-			border-right:1px solid #ccc;
-			display: none;
-		}
-		.msg-buttons input:focus {	
-			background-color:#eee;
-		}
-
-		/*prompt or not*/
-		.prompt .msg-buttons input {
-			width:50%;
-		}
-		.prompt .msg-buttons input:first-child {
-			display: inline;
-		}
-
-/* h2 color coding */
-.msg-box .red {
-	background-color:#ff3333;
-}
-.msg-box .orange {
-	background-color:#ff9933;
-}
-.msg-box .green {
-	background-color:#33ff66;
-}
-.msg-box .grey {
-	background-color:#999;
-}
-
-/* Open / Closed -- rules */
-.closed {
-	pointer-events: none;
-}
-.closed .fade {
-	background-color:rgba(0,0,0,0);
-}
-
-.closed .msg-box {
-	display: none;
-}
-
-/* -- end */
-
-
-/* Custom SETTINGS messagebox content */
-
-.settings_wrap {
-	padding: 0;
-}
-
-	.reset_settings {
-		position: absolute;
-		top: 10px;
-		right: 10px;
-	}
-
-	.settings_wrap .setting_item {
-		padding:10px;
-		border-bottom:1px solid #ccc;
-	}
-	.settings_wrap .setting_item:nth-child(2n) {
-		background-color:#f9f9f9;
-	}
-	.settings_wrap .setting_item:last-child {
-		border-bottom: none;
-	}
-
-		.setting_item .setting_label {
-			font-size:12px;
-		}
-		.setting_item .setting_label:after {
-			content: ":";
-		}
-		.setting_item .setting_input {
-			margin-left: 10px;
-		}
-		.setting_item .setting_desc {
-			padding:5px 0;
-			font-size:10px;
-			color:#666;
-		}
-
-/* -- end */

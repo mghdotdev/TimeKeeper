@@ -330,7 +330,7 @@ var TimeKeeper = {
 		this.unsavedSettings = JSON.parse(JSON.stringify(this.userSettings));
 
 		var btn_reset_settings = document.createElement('input');
-			btn_reset_settings.classList.add('reset_settings');
+			btn_reset_settings.classList.add('settings-reset-btn');
 			btn_reset_settings.type = 'button';
 			btn_reset_settings.value = '↺ Reset';
 			btn_reset_settings.onclick = function(e) {
@@ -352,15 +352,15 @@ var TimeKeeper = {
 			}.bind(this);
 
 		var settings_wrap = document.createElement('div');
-			settings_wrap.classList.add('settings_wrap');
+			settings_wrap.classList.add('settings-wrap');
 
 			for (setting in this.userSettings) {
 
 				var setting_item = document.createElement('div');
-					setting_item.classList.add('setting_item');
+					setting_item.classList.add('setting-item');
 
 				var setting_label = document.createElement('label');
-					setting_label.classList.add('setting_label');
+					setting_label.classList.add('setting-label');
 					setting_label.innerHTML = setting.replace('_', ' ');
 					setting_label.htmlFor = setting;
 
@@ -391,7 +391,7 @@ var TimeKeeper = {
 						}
 					break;
 				}
-				setting_input.classList.add('setting_input');
+				setting_input.classList.add('setting-input');
 				setting_input.id = setting;
 				setting_input.dataset.type = typeof this.userSettings[setting].value;
 				setting_input.onchange = function(e) {
@@ -413,7 +413,7 @@ var TimeKeeper = {
 				}.bind(this);
 
 				var setting_desc = document.createElement('p');
-					setting_desc.classList.add('setting_desc');
+					setting_desc.classList.add('setting-desc');
 					setting_desc.innerHTML = this.userSettings[setting].description;
 
 
