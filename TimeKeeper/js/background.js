@@ -1,10 +1,18 @@
 chrome.app.runtime.onLaunched.addListener(function() {
+
+	var windowWidth = 430;
+	var windowHeight = 600;
+
+	// bottom right
+	var top =  (screen.availHeight - windowHeight) - 50;
+	var left = (screen.availWidth - windowWidth) - 50;
+
 	chrome.app.window.create('../window.html', {
 		'bounds': {
-			'width': 430,
-			'height': 600,
-			'left': 0,
-			'top': 0
+			'width': windowWidth,
+			'height': windowHeight,
+			'top': top,
+			'left': left 
 		}
 	});
 });

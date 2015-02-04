@@ -6,6 +6,7 @@
 	"app": {
 		"background": {
 			"scripts": ["js/background.js"],
+			"persistant": false
 		}
 	},
 	"permissions": [
