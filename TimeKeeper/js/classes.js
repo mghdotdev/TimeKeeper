@@ -11,7 +11,7 @@ var TimeKeeper = {
 	searching: false,
 	modifierKey: 'ctrlKey',
 	chromeApp: (chrome && chrome.app) ? true : false,
-	version: (chrome && chrome.runtime) ? chrome.runtime.getManifest().version : '2.0.0',
+	version: (chrome && chrome.runtime) ? chrome.runtime.getManifest().version : '2.1.0',
 
 	// elements
 	newRecord_form: document.getElementById('newRecord_form'),
