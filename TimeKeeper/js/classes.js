@@ -1,17 +1,12 @@
-// check for chrome first
-window.chrome = window.chrome || undefined;
-
 // Global Object for the app
 var TimeKeeper = {
 
 	// variables
 	records: [],
-	admin_time: 0,
-	active: false,
+	adminTimer: new Timer(),
 	searching: false,
 	modifierKey: 'ctrlKey',
-	chromeApp: (chrome && chrome.app) ? true : false,
-	version: (chrome && chrome.runtime) ? chrome.runtime.getManifest().version : '2.1.0',
+	version: chrome.runtime.getManifest().version,
 
 	// elements
 	newRecord_form: document.getElementById('newRecord_form'),
@@ -37,24 +32,12 @@ var TimeKeeper = {
 	// functions
 	getSettings: function() {
 		this.userSettings = JSON.parse(JSON.stringify(this.defaultSettings));
-		if (chrome && chrome.storage) {
-			chrome.storage.sync.get('tksettings', function(result) {
-				if (!!result.tksettings) {
-					this.userSettings = this.updateSettings(JSON.parse(result.tksettings));
-				}
-				this.init();
-			}.bind(this));
-		}
-		else if (localStorage) {
-			if (localStorage.getItem('tksettings') !== null) {
-				this.userSettings = this.updateSettings(JSON.parse(localStorage.getItem('tksettings')));
+		chrome.storage.sync.get('tksettings', function(result) {
+			if (!!result.tksettings) {
+				this.userSettings = this.updateSettings(JSON.parse(result.tksettings));
 			}
 			this.init();
-		}
-		else {
-			// wow you really have a terrible browser...
-		}
-		
+		}.bind(this));
 	},
 	updateSettings: function(stored) {
 		// handles updates to the base settings obj
@@ -126,7 +109,11 @@ var TimeKeeper = {
 			this.modifierKey = 'metaKey';
 		}
 		document.querySelector('.app-info .version').innerHTML = 'Version: ' + this.version;
-		
+		this.adminTimer.start();
+		this.adminTimer.callback = function() {
+			this.admin_output.querySelector('.rounded').innerHTML = this.formatRounded(this.adminTimer.total);
+			this.admin_output.querySelector('.actual').innerHTML = this.formatActual(this.adminTimer.total);
+		}.bind(this);
 
 		// add events
 		window.onkeydown = function(e) {
@@ -207,17 +194,13 @@ var TimeKeeper = {
 			this.openSettings();
 		}.bind(this);
 
-		window.setInterval(function(e) {
-			this.update(this.active);
-		}.bind(this), 1000);
-
 		this.uploadRecord_file.onchange = function(e) {
 			this.importJSON();
 		}.bind(this);
 
 		this.exportRecord_btn.onclick = function(e) {
 			this.exportToJSON();
-		}.bind(this);
+		}.bind(this);	
 
 		console.log('App Loaded', this); // dev
 
@@ -241,7 +224,7 @@ var TimeKeeper = {
 		this.records.splice(id, 1);
 
 	}, // *end
-	findRecord: function(name) {
+	findRecord: function(guid) {
 		// Clear all highlights
 		var highlights = document.querySelectorAll('.highlight');
 		if (highlights) {
@@ -250,19 +233,9 @@ var TimeKeeper = {
 			}
 		}
 
-		name = name.toLowerCase();
-		var id;
-		for (var i = 0; i < this.records.length; i++) {
-			if (this.records[i].name.toLowerCase() === name) {
-				id = i;
-				break;
-			}
-		}
-		if (!!id) {
-			var el = this.records[id].el;
-			window.scrollTo(el.offsetLeft,el.offsetTop - 9);
-			el.classList.add('highlight');
-		}
+		var id = this.getRecordID(guid);
+		window.scrollTo(this.records[id].el.offsetLeft,this.records[id].el.offsetTop - 9);
+		this.records[id].el.classList.add('highlight');
 	},
 	filterRecords: function(searchString) {
 
@@ -480,35 +453,6 @@ var TimeKeeper = {
 		return hours+'h '+minutes+'m';
 	}, // *end
 
-	update: function(id) {
-		if (id === false) {
-
-			// stop the update function if the admin time tracking is set to false
-			if (this.userSettings.Admin_Time.value === false) return;
-
-			this.admin_time += 1000;
-			this.admin_output.querySelector('.rounded').innerHTML = this.formatRounded(this.admin_time);
-			this.admin_output.querySelector('.actual').innerHTML = this.formatActual(this.admin_time);
-		}
-		else {
-			var r = id.split('||')[0];
-			var t = id.split('||')[1];
-
-			for (var i = 0; i < this.records.length; i++) {
-				if (this.records[i].guid === r) r = i;
-				for (var j = 0; j < this.records[i].timestamps.length; j++) {
-					if (this.records[i].timestamps[j].guid === t) t = j;
-				}
-			}
-
-			this.records[r].total += 1000;
-			this.records[r].timestamps[t].difference += 1000;
-
-			this.records[r].displayTotal();
-			this.records[r].timestamps[t].displayTotal();
-		}
-	},
-
 	importJSON: function() {
 
 		if (!this.uploadRecord_file.files.length) {
@@ -629,7 +573,7 @@ var TimeKeeper = {
 					selectedRecords.push(checkboxes[j].dataset.recordId);
 				}
 
-				if (selectedRecords.indexOf('a') !== -1) this.admin_time = data.admin_time;
+				if (selectedRecords.indexOf('a') !== -1) this.adminTimer.total = data.admin_time;
 
 				for (var i = 0; i < data.records.length; i++) {
 					if (selectedRecords.indexOf(String(i)) === -1) continue;
@@ -638,7 +582,7 @@ var TimeKeeper = {
 					var r_id = this.records.length - 1;
 
 					for (var j = 0; j < data.records[i].timestamps.length; j++) {
-						this.records[r_id].openTimestamp(data.records[i].timestamps[j].guid, new Date(data.records[i].timestamps[j].from), new Date(data.records[i].timestamps[j].to), false);
+						this.records[r_id].openTimestamp(data.records[i].timestamps[j].guid, new Date(data.records[i].timestamps[j].from), new Date(data.records[i].timestamps[j].to));
 					}
 				}
 			}.bind(this),
@@ -654,7 +598,7 @@ var TimeKeeper = {
 
 		var json = {};
 
-		json.admin_time = this.admin_time;
+		json.admin_time = this.adminTimer.total;
 		json.records = [];
 		for (var i = 0; i < this.records.length; i++) {
 
@@ -672,7 +616,7 @@ var TimeKeeper = {
 					}.bind(this),
 					function() {
 
-						this.findRecord(this.records[i].name);
+						this.findRecord(this.records[i].guid);
 					
 					}.bind(this)
 				);
@@ -817,6 +761,49 @@ var TimeKeeper = {
 }
 TimeKeeper.getSettings();
 
+// Optimized timer class
+function Timer() {
+	this.from;
+	this.to;
+	this.total = 0;
+	this.interval;
+	this.paused = false;
+	this.callback;
+};
+Timer.prototype.start = function() {
+	this.from = new Date();
+
+	this.interval = window.setInterval(function() {
+		this.crunch();
+	}.bind(this), 1000);
+
+	return this.from;
+};
+Timer.prototype.togglePause = function() {
+	this.paused = !this.paused;
+	if (this.paused === true && this.interval !== undefined) {
+		window.clearInterval(this.interval);
+	}
+	else {
+		this.interval = window.setInterval(function() {
+			this.crunch();
+		}.bind(this), 1000);
+	}
+};
+Timer.prototype.stop = function() {
+	this.total = 0;
+	this.to = new Date();
+	window.clearInterval(this.interval);
+	this.interval = undefined;
+
+	return this.to;
+};
+Timer.prototype.crunch = function() {
+	this.total = new Date() - this.from;
+	if (this.callback !== undefined) {
+		this.callback();
+	}
+};
 
 // Record Class
 function Record(guid, name, done, parent) {
@@ -824,9 +811,10 @@ function Record(guid, name, done, parent) {
 	this.parent = parent;
 	this.name = name;
 	this.timestamps = [];
+	this.timer = new Timer();
+	this.activeTimestamp = undefined;
 	this.selectedTimestamps = [];
 	this.total = 0;
-	this.active = false;
 	this.done = done;
 
 	this.render();
@@ -857,24 +845,21 @@ Record.prototype.render = function() {
 					// if done is checked then prevent opening new timestamp
 					if (this.done === true) return;
 
-					if (this.parent.active !== false && this.parent.active.split('||')[0] !== this.guid) {
+					for (var i = 0; i < this.parent.records.length; i++) {
+						if (this.parent.records[i].activeTimestamp !== undefined && this.parent.records[i].guid !== this.guid) {
+							this.parent.message(
+								'red', 
+								'RECORD CURRENTlY ACTIVE',
+								'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
+								function() {
+									this.parent.findRecord(this.parent.records[i].guid);
+								}.bind(this)
+							);
+							return;
+						}
+					};
 
-						this.parent.message(
-							'red', 
-							'RECORD CURRENTlY ACTIVE',
-							'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
-							function() {
-
-								var recordid = this.parent.getRecordID(this.parent.active.split('||')[0]);
-								var name = this.parent.records[recordid].name;
-								this.parent.findRecord(name);
-
-							}.bind(this)
-						);
-						return;
-					}
-
-					if (this.active === false && this.parent.active === false) {
+					if (this.activeTimestamp === undefined) {
 						this.openTimestamp();
 						this.timestamp_open.value = '× Close';
 					}
@@ -988,48 +973,59 @@ Record.prototype.render = function() {
 	this.timestamp_output = div_timestamps;
 	
 };
-Record.prototype.openTimestamp = function(guid, from, to, active) {
+Record.prototype.openTimestamp = function(guid, from, to) {
 
 	// default values
 	guid = guid || this.parent.guid();
-	from = from || new Date();
+	from = from || this.timer.start();
 	to = to || undefined;
-	active = (active === false) ? false : true;
 	var difference = 0;
 	if (to !== undefined) {
 		difference = to - from;
 	}
 
-	var timestamp = new Timestamp(guid, from, to, difference, active, this);
+	var timestamp = new Timestamp(guid, from, to, difference, this);
 	this.timestamps.push(timestamp);
 
-	if (active === true) {
+	if (to === undefined) {
+		this.activeTimestamp = timestamp;
 		this.parent.admin_output.classList.remove('active');
-		this.parent.active = this.guid+'||'+guid
+		this.parent.adminTimer.togglePause();
+		var activeTotal = 0;
+		for (var i = 0; i < this.timestamps.length; i++) {
+			activeTotal += this.timestamps[i].difference;
+		}
+		this.timer.callback = function() {
+			this.activeTimestamp.difference = this.timer.total;
+			this.total = activeTotal + this.timer.total;
+			this.activeTimestamp.displayTotal();
+			this.displayTotal();
+		}.bind(this);
 	}
+
 	this.total += difference;
 	this.displayTotal();
 };
 Record.prototype.closeTimestamp = function() {
+
+	this.activeTimestamp.active = false;
+	this.activeTimestamp.to = this.timer.stop();
+
+	this.activeTimestamp.difference = this.activeTimestamp.to - this.activeTimestamp.from;
+
+	var old_render = this.activeTimestamp.el.remove();
+	this.activeTimestamp.render();
+
+	this.activeTimestamp = undefined;
+
+	this.total = 0;
+	// calculate total for the record
 	for (var i = 0; i < this.timestamps.length; i++) {
-		if (this.timestamps[i].active === true) {
-
-			this.active = false;
-			this.timestamps[i].active = false;
-			this.timestamps[i].to = new Date();
-
-			this.timestamps[i].difference = this.timestamps[i].to - this.timestamps[i].from;
-
-			var old_render = this.timestamps[i].el.remove();
-			this.timestamps[i].render();
-
-			this.parent.admin_output.classList.add('active');
-			this.parent.active = false;
-
-			return;
-		}
+		this.total += this.timestamps[i].difference;
 	}
-
+	this.displayTotal();
+	this.parent.admin_output.classList.add('active');
+	this.parent.adminTimer.togglePause();
 };
 Record.prototype.getTimestampID = function(guid) {
 	for (var i = 0; i < this.timestamps.length; i++) {
@@ -1092,19 +1088,16 @@ Record.prototype.displayTotal = function() {
 
 };
 
-
 // Timestamp Class
-function Timestamp(guid, from, to, difference, active, parent) {
+function Timestamp(guid, from, to, difference, parent) {
 	this.guid = guid;
 	this.parent = parent;
 	this.from = from;
 	this.to = to;
+	this.active = (this.to === undefined) ? true : false;
 	this.difference = difference;
-	this.active = active;
 
 	this.render();
-
-	this.parent.active = active;
 }
 Timestamp.prototype.render = function() {
 
