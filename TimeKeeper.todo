@@ -43,12 +43,12 @@ BUGS
 - 10. Fix issue of either overwriting the records array or appending it... display appends | class overwrites
 - 11. Fixed max-height issue on Message Box div
 - 12. while applying admin time on/off the ASC/DESC bugs out, showing the welcome message
-13. Safari's weird localeTimeString suff needs to be taken care of
+// 13. Safari's weird localeTimeString suff needs to be taken care of
 - 14. Timestamps delete feature does not accuratly remove totals
 - 15. apply the line-height hack to the h3 total on records
 - 16. SEVERE ISSUE WITH TOTALS NOT DISPLAYING PROPERLY
-17. Tab order for settings page, reset button seems to be messing with it
-18. When importing whilst Timestamp is active, "x Close" button needs to be swapped to "+ Open"
+- 17. Tab order for settings page, reset button seems to be messing with it
+- 18. When importing whilst Timestamp is active, "x Close" button needs to be swapped to "+ Open"
 
 -------------------------------
 - = done | ! = important

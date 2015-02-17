@@ -603,7 +603,7 @@ var TimeKeeper = {
 		for (var i = 0; i < this.records.length; i++) {
 
 			// break out if there is a current timestamp active
-			if (this.records[i].active === true) {
+			if (this.records[i].activeTimestamp !== undefined) {
 				this.message(
 					'orange', 
 					'CLOSE TIMESTAMP', 
@@ -706,11 +706,18 @@ var TimeKeeper = {
 				
 				// custom tabbing, because default is lame (plus it lets you tab out of the message box)
 				if (isPrompt) {
-					var focused = document.querySelector('#message input[type="button"]:focus') || document.querySelector('#message input[type="button"]');
-					var notFocused = document.querySelector('#message input[type="button"]:not(:focus)');
+					var focused = document.querySelector('#message .custom-tab:focus') || document.querySelector('#message .custom-tab');
+					var notFocused = document.querySelector('#message .custom-tab:not(:focus)');
+
+					if (focused === notFocused) {
+						notFocused = document.querySelector('#message .yes');
+					}
 
 					focused.blur();
 					notFocused.focus();
+				}
+				else {
+					document.querySelector('#message .yes').focus();	
 				}
 
 				e.preventDefault();
@@ -767,6 +774,7 @@ function Timer() {
 	this.to;
 	this.total = 0;
 	this.interval;
+	this.pausedTime = 0;
 	this.paused = false;
 	this.callback;
 };
@@ -783,8 +791,10 @@ Timer.prototype.togglePause = function() {
 	this.paused = !this.paused;
 	if (this.paused === true && this.interval !== undefined) {
 		window.clearInterval(this.interval);
+		this.pausedTime = this.total;
 	}
 	else {
+		this.from = new Date();
 		this.interval = window.setInterval(function() {
 			this.crunch();
 		}.bind(this), 1000);
@@ -799,7 +809,7 @@ Timer.prototype.stop = function() {
 	return this.to;
 };
 Timer.prototype.crunch = function() {
-	this.total = new Date() - this.from;
+	this.total = (new Date() - this.from) + this.pausedTime;
 	if (this.callback !== undefined) {
 		this.callback();
 	}
@@ -861,11 +871,9 @@ Record.prototype.render = function() {
 
 					if (this.activeTimestamp === undefined) {
 						this.openTimestamp();
-						this.timestamp_open.value = '× Close';
 					}
 					else {
 						this.closeTimestamp();
-						this.timestamp_open.value = '+ Open';
 					}
 				}.bind(this);
 			var input_delete = document.createElement('input');
@@ -1001,6 +1009,8 @@ Record.prototype.openTimestamp = function(guid, from, to) {
 			this.activeTimestamp.displayTotal();
 			this.displayTotal();
 		}.bind(this);
+
+		this.timestamp_open.value = '× Close';
 	}
 
 	this.total += difference;
@@ -1026,6 +1036,8 @@ Record.prototype.closeTimestamp = function() {
 	this.displayTotal();
 	this.parent.admin_output.classList.add('active');
 	this.parent.adminTimer.togglePause();
+
+	this.timestamp_open.value = '+ Open';
 };
 Record.prototype.getTimestampID = function(guid) {
 	for (var i = 0; i < this.timestamps.length; i++) {
