@@ -1,7 +1,7 @@
 {
 	"name": "TimeKeeper",
 	"description": "Keep track of your hours for clients and admin time.",
-	"version": "2.2.1",
+	"version": "2.2.2",
 	"manifest_version": 2,
 	"app": {
 		"background": {
