@@ -49,6 +49,7 @@ BUGS
 - 16. SEVERE ISSUE WITH TOTALS NOT DISPLAYING PROPERLY
 - 17. Tab order for settings page, reset button seems to be messing with it
 - 18. When importing whilst Timestamp is active, "x Close" button needs to be swapped to "+ Open"
+19. Throw an error when pressing "In Basecamp?" while a record is active.
 
 -------------------------------
 - = done | ! = important
