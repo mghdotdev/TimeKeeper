@@ -832,7 +832,8 @@ function Record(guid, name, done, parent) {
 	if (this.parent.userSettings.Auto_Timestamp.value === true) {
 		for (var i = 0; i < this.parent.records.length; i++) {
 			if (this.parent.records[i].activeTimestamp !== undefined) {
-				this.parent.message(
+				this.parent.records[i].closeTimestamp();
+				/*this.parent.message(
 					'red', 
 					'RECORD CURRENTlY ACTIVE',
 					'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
@@ -840,7 +841,7 @@ function Record(guid, name, done, parent) {
 						this.parent.findRecord(this.parent.records[i].guid);
 					}.bind(this)
 				);
-				return;
+				return;*/
 			}
 		}
 		this.openTimestamp();
@@ -874,7 +875,8 @@ Record.prototype.render = function() {
 
 					for (var i = 0; i < this.parent.records.length; i++) {
 						if (this.parent.records[i].activeTimestamp !== undefined && this.parent.records[i].guid !== this.guid) {
-							this.parent.message(
+							this.parent.records[i].closeTimestamp();
+							/*this.parent.message(
 								'red', 
 								'RECORD CURRENTlY ACTIVE',
 								'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
@@ -882,7 +884,7 @@ Record.prototype.render = function() {
 									this.parent.findRecord(this.parent.records[i].guid);
 								}.bind(this)
 							);
-							return;
+							return;*/
 						}
 					};
 
