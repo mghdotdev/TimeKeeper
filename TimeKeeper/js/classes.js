@@ -22,7 +22,8 @@ var TimeKeeper = {
 	// meta information
 	defaultSettings: {
 		Admin_Time: {value: true, description: 'Turn On/Off the Admin Time tracking.'},
-		Auto_Timestamp: {value: false, description: 'Automatically open a Timestamp when you create a Record.'},
+		Allow_Open_Action_to_Close: {value: false, description: 'Allow the "+ Open" timestamp action to close other timestamps and automatically open a new one.'},
+		Auto_Open_Timestamp: {value: false, description: 'Automatically open a Timestamp when you create a Record.'},
 		Export_Filename: {value: 'tk_export_', description: 'Enter the Export to JSON filename prefix. The entered value will prefex the current date, formatted as MM_DD_YYYY.' },
 		Record_Sort: {value: {selected: 'ASC', options: ['ASC', 'DESC']}, description: 'Change the default sorting method for current and new records. ASC is default, meaning new Records will ordered from newest to oldest.'},
 		Timestamp_Format: {value: {selected: '12 Hour', options: ['12 Hour', '24 Hour']}, description: 'Display timestamps as 12 Hour or 24 Hour time format.'}
@@ -335,7 +336,7 @@ var TimeKeeper = {
 
 				var setting_label = document.createElement('label');
 					setting_label.classList.add('setting-label');
-					setting_label.innerHTML = setting.replace('_', ' ');
+					setting_label.innerHTML = setting.replace(/_/g, ' ');
 					setting_label.htmlFor = setting;
 
 				var setting_input;
@@ -829,7 +830,7 @@ function Record(guid, name, done, parent) {
 	this.done = done;
 
 	this.render();
-	if (this.parent.userSettings.Auto_Timestamp.value === true) {
+	if (this.parent.userSettings.Auto_Open_Timestamp.value === true) {
 		for (var i = 0; i < this.parent.records.length; i++) {
 			if (this.parent.records[i].activeTimestamp !== undefined) {
 				this.parent.records[i].closeTimestamp();
@@ -875,16 +876,20 @@ Record.prototype.render = function() {
 
 					for (var i = 0; i < this.parent.records.length; i++) {
 						if (this.parent.records[i].activeTimestamp !== undefined && this.parent.records[i].guid !== this.guid) {
-							this.parent.records[i].closeTimestamp();
-							/*this.parent.message(
-								'red', 
-								'RECORD CURRENTlY ACTIVE',
-								'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
-								function() {
-									this.parent.findRecord(this.parent.records[i].guid);
-								}.bind(this)
-							);
-							return;*/
+							if (this.parent.userSettings.Allow_Open_Action_to_Close.value === true) {
+								this.parent.records[i].closeTimestamp();
+							}
+							else {
+								this.parent.message(
+									'red', 
+									'RECORD CURRENTlY ACTIVE',
+									'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
+									function() {
+										this.parent.findRecord(this.parent.records[i].guid);
+									}.bind(this)
+								);
+								return;
+							}
 						}
 					};
 
