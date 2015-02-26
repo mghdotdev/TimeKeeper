@@ -2,7 +2,7 @@
 	"name": "TimeKeeper",
 	"short_name": "TK",
 	"description": "Track your time electronically with TimeKeeper. Clock hours for clients and auto calculate Admin time.",
-	"version": "2.2.4",
+	"version": "2.2.4a",
 	"manifest_version": 2,
 	"app": {
 		"background": {
