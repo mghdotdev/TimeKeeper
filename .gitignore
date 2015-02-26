@@ -1,2 +1,5 @@
 # Ignore ZIP'd Chrome Releases
 *.zip
+
+# Ignore Assets Folder
+assets/*
