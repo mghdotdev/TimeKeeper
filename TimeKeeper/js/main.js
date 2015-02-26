@@ -575,7 +575,7 @@ var TimeKeeper = {
 					selectedRecords.push(checkboxes[j].dataset.recordId);
 				}
 
-				if (selectedRecords.indexOf('a') !== -1) this.adminTimer.total = data.admin_time;
+				if (selectedRecords.indexOf('a') !== -1) this.adminTimer.pausedTime = data.admin_time;
 
 				for (var i = 0; i < data.records.length; i++) {
 					if (selectedRecords.indexOf(String(i)) === -1) continue;
