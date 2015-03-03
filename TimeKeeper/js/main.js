@@ -202,10 +202,31 @@ var TimeKeeper = {
 
 		this.exportRecord_btn.onclick = function(e) {
 			this.exportToJSON();
-		}.bind(this);	
+		}.bind(this);
 
-		console.log('App Loaded', this); // dev
+		window.setInterval(function() {
+			this.backup();
+		}.bind(this), 60000);
 
+		// check for backup and import
+		chrome.storage.sync.get('tkbackup', function(result) {
+			if (!!result.tkbackup) {
+				var backup = JSON.parse(result.tkbackup);
+				var backupLifespan = new Date().getTime() - backup.time;
+				if (backupLifespan < 36000) {
+					this.message(
+						'orange',
+						'BACKUP DETECTED',
+						'There is a recent automatic backup detected. Would you like to load the data from it? Press ACCEPT to import.',
+						function() {
+							this.buildFromImport(JSON.stringify(backup.data));
+						}.bind(this),
+						true
+					)
+				}
+			}
+		}.bind(this));
+		console.log(this); // dev
 	},
 
 	// *ADDING / REMOVING NEW RECORDS
@@ -405,18 +426,8 @@ var TimeKeeper = {
 			'',
 			function () {
 
-				// save settings to chrome.storage or localStorage
-				if (chrome && chrome.storage) {
-					chrome.storage.sync.set({'tksettings': JSON.stringify(this.unsavedSettings)});
-					console.log('Chrome Storage Saved');
-				}
-				else if (localStorage) {
-					localStorage.setItem('tksettings', JSON.stringify(this.unsavedSettings));
-					console.log('Local Storage Saved');
-				}
-				else {
-					// wow you really have a terrible browser...
-				}
+				// save settings to chrome.storage
+				chrome.storage.sync.set({'tksettings': JSON.stringify(this.unsavedSettings)});
 
 				if (JSON.stringify(this.userSettings) !== JSON.stringify(this.unsavedSettings)) {
 					this.userSettings = this.unsavedSettings;
@@ -650,6 +661,36 @@ var TimeKeeper = {
 			'Your TimeKeeper data has been successfuly exported.<br><br>Check your /Downloads folder for a file named "' + this.userSettings.Export_Filename.value + 'MM-DD-YYYY.json".'
 		);
 
+	},
+	backup: function() {
+		var data = {};
+		data.admin_time = this.adminTimer.total;
+		data.records = [];
+		for (var i = 0; i < this.records.length; i++) {
+			var record = {};
+			record.name = this.records[i].name;
+			record.done = this.records[i].done;
+			record.timestamps = [];
+			for (var j = 0; j < this.records[i].timestamps.length; j++) {
+
+				var timestamp = {};
+				timestamp.from = this.records[i].timestamps[j].from.getTime();
+				if (this.records[i].timestamps[j].to === undefined) {
+					timestamp.to = new Date().getTime();
+				}
+				else {
+					timestamp.to = this.records[i].timestamps[j].to.getTime();
+				}
+				record.timestamps.push(timestamp);
+			}
+			data.records.push(record);
+		}
+
+		var json = {};
+		json.time = new Date().getTime();
+		json.data = data;
+
+		chrome.storage.sync.set({'tkbackup': JSON.stringify(json)});
 	},
 
 	// utility functions
