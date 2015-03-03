@@ -16,6 +16,7 @@ var TimeKeeper = {
 	settings_btn: document.getElementById('settings_btn'),
 	record_output: document.getElementById('record_output'),
 	admin_output: document.getElementById('admin_output'),
+	recordActions_btn: document.getElementById('recordActions_btn'),
 	uploadRecord_file: document.getElementById('uploadRecord_file'),
 	exportRecord_btn: document.getElementById('exportRecord_btn'),
 
@@ -196,6 +197,10 @@ var TimeKeeper = {
 			this.openSettings();
 		}.bind(this);
 
+		this.recordActions_btn.onclick = function(e) {
+			this.openRecordActions();
+		}.bind(this);
+
 		this.uploadRecord_file.onchange = function(e) {
 			this.importJSON();
 		}.bind(this);
@@ -219,7 +224,7 @@ var TimeKeeper = {
 						'BACKUP DETECTED',
 						'There is a recent automatic backup detected. Would you like to load the data from it? Press ACCEPT to import.',
 						function() {
-							this.buildFromImport(JSON.stringify(backup.data));
+							this.buildFromImport(JSON.stringify(backup.data), true);
 						}.bind(this),
 						true
 					)
@@ -239,6 +244,12 @@ var TimeKeeper = {
 
 		var record = new Record(guid, name, done, this);
 		this.records.push(record);
+
+		// Enable Record Actions button
+		this.recordActions_btn.disabled = false;
+
+		// backup
+		this.backup();
 	},
 	removeRecord: function(guid) {
 
@@ -455,6 +466,128 @@ var TimeKeeper = {
 
 	},
 
+	openRecordActions: function() {
+
+		var div_recordActions = document.createElement('div');
+			div_recordActions.classList.add('record-actions');
+
+			var select_selectActions = document.createElement('select');
+				select_selectActions.classList.add('select-actions');
+
+				var option_delete = document.createElement('option');
+					option_delete.value = 'delete';
+					option_delete.innerHTML = 'Delete';
+
+			select_selectActions.appendChild(option_delete);
+
+		div_recordActions.appendChild(select_selectActions);
+
+			var ul = document.createElement('ul');
+
+				var li_rowHeader = document.createElement('li');
+				li_rowHeader.classList.add('row-header');
+
+					var input_rowHeader = document.createElement('input');
+					input_rowHeader.type = 'checkbox';
+					//input_rowHeader.checked = 'checked';
+					input_rowHeader.id = 'sa';
+					input_rowHeader.onclick = function(e) {
+						var checkboxes = document.querySelectorAll('.msg-box input[type="checkbox"]');
+						for (var i = 0; i < checkboxes.length; i++) {
+							checkboxes[i].checked = e.target.checked;
+						}
+					};
+					var label_rowHeader = document.createElement('label');
+					label_rowHeader.innerHTML = 'Select All';
+					label_rowHeader.htmlFor = 'sa';
+
+				li_rowHeader.appendChild(input_rowHeader);
+				li_rowHeader.appendChild(label_rowHeader);
+
+				var li_admin = document.createElement('li');
+				li_admin.classList.add('admin');
+
+					var input_admin = document.createElement('input');
+					input_admin.type = 'checkbox';
+					//input_admin.checked = 'checked';
+					input_admin.dataset.recordId = 'a';
+					input_admin.id = 'ia';
+					var label_admin = document.createElement('label');
+					label_admin.innerHTML = 'Admin Time';
+					label_admin.htmlFor = 'ia';
+
+				li_admin.appendChild(input_admin);
+				li_admin.appendChild(label_admin);
+
+			ul.appendChild(li_rowHeader);
+			ul.appendChild(li_admin);
+
+			for (var i = 0; i < this.records.length; i++) {
+				var li_record = document.createElement('li');
+				if (this.records[i].done === true) li_record.classList.add('done');
+
+					var input_cbox_record = document.createElement('input');
+					input_cbox_record.type = 'checkbox';
+					input_cbox_record.id = 'ir'+i;
+					input_cbox_record.dataset.guid = this.records[i].guid;
+					var label_record = document.createElement('label');
+					label_record.innerHTML = this.records[i].name;
+					label_record.htmlFor = 'ir'+i;
+
+					li_record.appendChild(input_cbox_record);
+					li_record.appendChild(label_record);
+
+				if (this.userSettings.Record_Sort.value.selected === 'ASC') {
+					var prevNode = ul.children[2];
+					ul.insertBefore(li_record, prevNode);
+				}
+				else {
+					ul.appendChild(li_record);
+				}
+
+			}
+
+		div_recordActions.appendChild(ul);
+		
+		this.message(
+			'grey',
+			'RECORD ACTIONS',
+			'', 
+			function() {
+				var checkboxes = document.querySelectorAll('.msg-box input[type="checkbox"]:checked');
+				
+				var selectedRecords = [];
+				var adminEl;
+				for (var j = 0; j < checkboxes.length; j++) {
+					if (checkboxes[j].dataset.recordId === 'a') {
+						adminEl = checkboxes[j];
+						continue;
+					}
+					selectedRecords.push(checkboxes[j].dataset.guid);
+				}
+
+				// @s DELETE ACTION
+				if (adminEl) {
+					this.adminTimer.pausedTime = 0;
+				}
+				for (var i = 0; i < selectedRecords.length; i++) {
+					this.removeRecord(selectedRecords[i]);
+				}
+
+				// disable button
+				if (this.records.length === 0) {
+					this.recordActions_btn.disabled = true;
+				}
+				// @e DELETE ACTION
+
+			}.bind(this),
+			true
+		);
+	
+		// add to message box
+		document.querySelector('.msg-box .body').appendChild(div_recordActions);
+	},
+
 	// *FORMATTING TIME
 	formatRounded: function(ms) {
 		var hours = ((ms/1000)/60)/60;
@@ -505,7 +638,7 @@ var TimeKeeper = {
 		this.uploadRecord_file.value = '';
 
 	},
-	buildFromImport: function(json) {
+	buildFromImport: function(json, adminChecked) {
 		var data = JSON.parse(json);
 
 		var ul = document.createElement('ul');
@@ -535,7 +668,7 @@ var TimeKeeper = {
 
 				var input_admin = document.createElement('input');
 				input_admin.type = 'checkbox';
-				//input_admin.checked = 'checked';
+				if (adminChecked === true) input_admin.checked = 'checked';
 				input_admin.dataset.recordId = 'a';
 				input_admin.id = 'ia';
 				var label_admin = document.createElement('label');
@@ -1103,6 +1236,8 @@ Record.prototype.closeTimestamp = function() {
 	this.parent.adminTimer.togglePause();
 
 	this.timestamp_open.value = '+ Open';
+
+	this.parent.backup();
 };
 Record.prototype.getTimestampID = function(guid) {
 	for (var i = 0; i < this.timestamps.length; i++) {

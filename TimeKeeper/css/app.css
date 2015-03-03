@@ -236,7 +236,7 @@ hr {
 /* Admin Time - Tracks the downtime between client work
  ================================================================================ */
 .admin-wrap {
-
+	margin:0;
 }
 
 	.admin {
