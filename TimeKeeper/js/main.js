@@ -510,7 +510,6 @@ var TimeKeeper = {
 					var input_admin = document.createElement('input');
 					input_admin.type = 'checkbox';
 					//input_admin.checked = 'checked';
-					input_admin.dataset.recordId = 'a';
 					input_admin.id = 'ia';
 					var label_admin = document.createElement('label');
 					label_admin.innerHTML = 'Admin Time';
@@ -559,8 +558,11 @@ var TimeKeeper = {
 				var selectedRecords = [];
 				var adminEl;
 				for (var j = 0; j < checkboxes.length; j++) {
-					if (checkboxes[j].dataset.recordId === 'a') {
+					if (checkboxes[j].id === 'ia') {
 						adminEl = checkboxes[j];
+						continue;
+					}
+					else if (checkboxes[j].id === 'sa') {
 						continue;
 					}
 					selectedRecords.push(checkboxes[j].dataset.guid);
