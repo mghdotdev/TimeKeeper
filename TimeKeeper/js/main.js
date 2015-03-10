@@ -474,11 +474,33 @@ var TimeKeeper = {
 			var select_selectActions = document.createElement('select');
 				select_selectActions.classList.add('select-actions');
 
-				var option_delete = document.createElement('option');
-					option_delete.value = 'delete';
-					option_delete.innerHTML = 'Delete';
+				var option_dummy = document.createElement('option');
+					option_dummy.value = 0;
+					option_dummy.disabled = true;
+					option_dummy.selected = true;
+					option_dummy.innerHTML = '- Select -';
 
-			select_selectActions.appendChild(option_delete);
+				var optgroup_actions = document.createElement('optgroup');
+					optgroup_actions.label = 'Actions';
+
+					var option_delete = document.createElement('option');
+						option_delete.value = 'delete';
+						option_delete.innerHTML = '- Delete';
+
+					optgroup_actions.appendChild(option_delete);
+
+				var optgroup_reports = document.createElement('optgroup');
+					optgroup_reports.label = 'Reports';
+
+					var option_addTotals = document.createElement('option');
+						option_addTotals.value = 'addTotals';
+						option_addTotals.innerHTML = '+ Add Totals';
+
+					optgroup_reports.appendChild(option_addTotals);
+
+			select_selectActions.appendChild(option_dummy);
+			select_selectActions.appendChild(optgroup_actions);
+			select_selectActions.appendChild(optgroup_reports);
 
 		div_recordActions.appendChild(select_selectActions);
 
@@ -547,7 +569,44 @@ var TimeKeeper = {
 			}
 
 		div_recordActions.appendChild(ul);
-		
+
+		var Actions = {}
+		Actions.delete = function(records, admin) {
+			if (admin !== undefined) {
+				this.adminTimer.pausedTime = 0;
+				this.adminTimer.total = 0;
+			}
+			for (var i = 0; i < records.length; i++) {
+				this.removeRecord(records[i]);
+			}
+
+			// disable button
+			if (this.records.length === 0) {
+				this.recordActions_btn.disabled = true;
+			}
+		}.bind(this);
+
+		var Reports = {};
+		Reports.addTotals = function(records, admin) {
+			var reportedTimeTotal = 0;
+			if (admin !== undefined) {
+				reportedTimeTotal += this.adminTimer.total;
+			}
+			for (var i = 0; i < records.length; i++) {
+				var id = this.getRecordID(records[i]);
+				reportedTimeTotal += this.records[id].total;
+			}
+
+			this.message(
+				'green',
+				'REPORT OUTPUT',
+				'' + this.formatRounded(reportedTimeTotal) + ' (' + this.formatActual(reportedTimeTotal) + ')',
+				function() {},
+				false
+			);
+
+		}.bind(this);
+
 		this.message(
 			'grey',
 			'RECORD ACTIONS',
@@ -556,10 +615,10 @@ var TimeKeeper = {
 				var checkboxes = document.querySelectorAll('.msg-box input[type="checkbox"]:checked');
 				
 				var selectedRecords = [];
-				var adminEl;
+				var adminTime;
 				for (var j = 0; j < checkboxes.length; j++) {
 					if (checkboxes[j].id === 'ia') {
-						adminEl = checkboxes[j];
+						adminTime = checkboxes[j];
 						continue;
 					}
 					else if (checkboxes[j].id === 'sa') {
@@ -568,19 +627,14 @@ var TimeKeeper = {
 					selectedRecords.push(checkboxes[j].dataset.guid);
 				}
 
-				// @s DELETE ACTION
-				if (adminEl) {
-					this.adminTimer.pausedTime = 0;
+				switch(select_selectActions.options[select_selectActions.selectedIndex].parentNode.label) {
+					case 'Actions':
+						Actions[select_selectActions.value](selectedRecords, adminTime);
+					break;
+					case 'Reports':
+						Reports[select_selectActions.value](selectedRecords, adminTime);
+					break;
 				}
-				for (var i = 0; i < selectedRecords.length; i++) {
-					this.removeRecord(selectedRecords[i]);
-				}
-
-				// disable button
-				if (this.records.length === 0) {
-					this.recordActions_btn.disabled = true;
-				}
-				// @e DELETE ACTION
 
 			}.bind(this),
 			true
