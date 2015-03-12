@@ -214,7 +214,7 @@ var TimeKeeper = {
 		}.bind(this), 60000);
 
 		// check for backup and import
-		chrome.storage.sync.get('tkbackup', function(result) {
+		chrome.storage.local.get('tkbackup', function(result) {
 			if (!!result.tkbackup) {
 				var backup = JSON.parse(result.tkbackup);
 				var backupLifespan = new Date().getTime() - backup.time;
@@ -883,7 +883,7 @@ var TimeKeeper = {
 		json.time = new Date().getTime();
 		json.data = data;
 
-		chrome.storage.sync.set({'tkbackup': JSON.stringify(json)});
+		chrome.storage.local.set({'tkbackup': JSON.stringify(json)});
 	},
 
 	// utility functions
