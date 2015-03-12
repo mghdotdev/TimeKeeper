@@ -235,14 +235,15 @@ var TimeKeeper = {
 	},
 
 	// *ADDING / REMOVING NEW RECORDS
-	addRecord: function(guid, name, done) {
+	addRecord: function(guid, name, done, builtFromImport) {
 		// default values
 		guid = guid || this.guid();
 		name = name || this.recordName_txt.value;
 		done = (done === true) ? true : false;
+		bultFromImport = builtFromImport || undefined;
 		var total = 0;
 
-		var record = new Record(guid, name, done, this);
+		var record = new Record(guid, name, done, this, builtFromImport);
 		this.records.push(record);
 
 		// Enable Record Actions button
@@ -775,12 +776,15 @@ var TimeKeeper = {
 					selectedRecords.push(checkboxes[j].dataset.recordId);
 				}
 
-				if (selectedRecords.indexOf('a') !== -1) this.adminTimer.pausedTime = data.admin_time;
+				if (selectedRecords.indexOf('a') !== -1) {
+					this.adminTimer.pausedTime = data.admin_time;
+					this.adminTimer.total = data.admin_time;
+				}
 
 				for (var i = 0; i < data.records.length; i++) {
 					if (selectedRecords.indexOf(String(i)) === -1) continue;
 
-					this.addRecord(data.records[i].guid, data.records[i].name, data.records[i].done);
+					this.addRecord(data.records[i].guid, data.records[i].name, data.records[i].done, false);
 					var r_id = this.records.length - 1;
 
 					for (var j = 0; j < data.records[i].timestamps.length; j++) {
@@ -1048,7 +1052,7 @@ Timer.prototype.crunch = function() {
 };
 
 // Record Class
-function Record(guid, name, done, parent) {
+function Record(guid, name, done, parent, builtFromImport) {
 	this.guid = guid;
 	this.parent = parent;
 	this.name = name;
@@ -1064,18 +1068,9 @@ function Record(guid, name, done, parent) {
 		for (var i = 0; i < this.parent.records.length; i++) {
 			if (this.parent.records[i].activeTimestamp !== undefined) {
 				this.parent.records[i].closeTimestamp();
-				/*this.parent.message(
-					'red', 
-					'RECORD CURRENTlY ACTIVE',
-					'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
-					function() {
-						this.parent.findRecord(this.parent.records[i].guid);
-					}.bind(this)
-				);
-				return;*/
 			}
 		}
-		this.openTimestamp();
+		if (builtFromImport === undefined) this.openTimestamp();
 	}
 } 
 Record.prototype.render = function() {
