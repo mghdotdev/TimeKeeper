@@ -3,7 +3,7 @@ var TimeKeeper = {
 
 	// variables
 	records: [],
-	adminTimer: new Timer(),
+	adminTimer: new AdminTimer(),
 	searching: false,
 	modifierKey: 'ctrlKey',
 	version: chrome.runtime.getManifest().version,
@@ -112,10 +112,11 @@ var TimeKeeper = {
 			this.modifierKey = 'metaKey';
 		}
 		document.querySelector('.app-info .version').innerHTML = 'Version: ' + this.version;
+
 		this.adminTimer.start();
 		this.adminTimer.callback = function() {
-			this.admin_output.querySelector('.rounded').innerHTML = this.formatRounded(this.adminTimer.total);
-			this.admin_output.querySelector('.actual').innerHTML = this.formatActual(this.adminTimer.total);
+			this.admin_output.querySelector('.rounded').innerHTML = this.formatRounded(this.adminTimer.getTotal());
+			this.admin_output.querySelector('.actual').innerHTML = this.formatActual(this.adminTimer.getTotal());
 		}.bind(this);
 
 		// add events
@@ -218,7 +219,7 @@ var TimeKeeper = {
 			if (!!result.tkbackup) {
 				var backup = JSON.parse(result.tkbackup);
 				var backupLifespan = new Date().getTime() - backup.time;
-				if (backupLifespan < 36000) {
+				if (backupLifespan < 10800000) {
 					this.message(
 						'orange',
 						'BACKUP DETECTED',
@@ -249,8 +250,6 @@ var TimeKeeper = {
 		// Enable Record Actions button
 		this.recordActions_btn.disabled = false;
 
-		// backup
-		this.backup();
 	},
 	removeRecord: function(guid) {
 
@@ -574,8 +573,7 @@ var TimeKeeper = {
 		var Actions = {}
 		Actions.delete = function(records, admin) {
 			if (admin !== undefined) {
-				this.adminTimer.pausedTime = 0;
-				this.adminTimer.total = 0;
+				this.adminTimer.clear();
 			}
 			for (var i = 0; i < records.length; i++) {
 				this.removeRecord(records[i]);
@@ -591,7 +589,7 @@ var TimeKeeper = {
 		Reports.addTotals = function(records, admin) {
 			var reportedTimeTotal = 0;
 			if (admin !== undefined) {
-				reportedTimeTotal += this.adminTimer.total;
+				reportedTimeTotal += this.adminTimer.getTotal();
 			}
 			for (var i = 0; i < records.length; i++) {
 				var id = this.getRecordID(records[i]);
@@ -652,7 +650,7 @@ var TimeKeeper = {
 	},
 	formatActual: function(ms) {
 		var hours = Math.floor(((ms/1000)/60)/60);
-		var minutes = Math.round((ms/1000)/60 % 60);
+		var minutes = Math.floor((ms/1000)/60 % 60);
 		return hours+'h '+minutes+'m';
 	}, // *end
 
@@ -777,8 +775,7 @@ var TimeKeeper = {
 				}
 
 				if (selectedRecords.indexOf('a') !== -1) {
-					this.adminTimer.pausedTime = data.admin_time;
-					this.adminTimer.total = data.admin_time;
+					this.adminTimer.setTotal(data.admin_time);
 				}
 
 				for (var i = 0; i < data.records.length; i++) {
@@ -804,7 +801,7 @@ var TimeKeeper = {
 
 		var json = {};
 
-		json.admin_time = this.adminTimer.total;
+		json.admin_time = this.adminTimer.getTotal();
 		json.records = [];
 		for (var i = 0; i < this.records.length; i++) {
 
@@ -857,7 +854,7 @@ var TimeKeeper = {
 	},
 	backup: function() {
 		var data = {};
-		data.admin_time = this.adminTimer.total;
+		data.admin_time = this.adminTimer.getTotal();
 		data.records = [];
 		for (var i = 0; i < this.records.length; i++) {
 			var record = {};
@@ -1003,461 +1000,3 @@ var TimeKeeper = {
 	}
 }
 TimeKeeper.getSettings();
-
-// Optimized timer class
-function Timer() {
-	this.from;
-	this.to;
-	this.total = 0;
-	this.interval;
-	this.pausedTime = 0;
-	this.paused = false;
-	this.callback;
-};
-Timer.prototype.start = function() {
-	this.from = new Date();
-
-	this.interval = window.setInterval(function() {
-		this.crunch();
-	}.bind(this), 1000);
-
-	return this.from;
-};
-Timer.prototype.togglePause = function() {
-	this.paused = !this.paused;
-	if (this.paused === true && this.interval !== undefined) {
-		window.clearInterval(this.interval);
-		this.pausedTime = this.total;
-	}
-	else {
-		this.from = new Date();
-		this.interval = window.setInterval(function() {
-			this.crunch();
-		}.bind(this), 1000);
-	}
-};
-Timer.prototype.stop = function() {
-	this.total = 0;
-	this.to = new Date();
-	window.clearInterval(this.interval);
-	this.interval = undefined;
-
-	return this.to;
-};
-Timer.prototype.crunch = function() {
-	this.total = (new Date() - this.from) + this.pausedTime;
-	if (this.callback !== undefined) {
-		this.callback();
-	}
-};
-
-// Record Class
-function Record(guid, name, done, parent, builtFromImport) {
-	this.guid = guid;
-	this.parent = parent;
-	this.name = name;
-	this.timestamps = [];
-	this.timer = new Timer();
-	this.activeTimestamp = undefined;
-	this.selectedTimestamps = [];
-	this.total = 0;
-	this.done = done;
-
-	this.render();
-	if (this.parent.userSettings.Auto_Open_Timestamp.value === true) {
-		for (var i = 0; i < this.parent.records.length; i++) {
-			if (this.parent.records[i].activeTimestamp !== undefined) {
-				this.parent.records[i].closeTimestamp();
-			}
-		}
-		if (builtFromImport === undefined) this.openTimestamp();
-	}
-} 
-Record.prototype.render = function() {
-	// html template
-	var div_record = document.createElement('div');
-		div_record.classList.add('record');
-		div_record.classList.add('content-block');
-		if (this.done === true) {
-			div_record.classList.add('done');
-		}
-		div_record.dataset.recordId = this.guid;
-
-		var h1_name = document.createElement('h1');
-			h1_name.classList.add('name');
-			h1_name.innerHTML = this.name;
-
-		var div_actions = document.createElement('div');
-			div_actions.classList.add('actions');
-
-			var input_open = document.createElement('input');
-				input_open.type = 'button';
-				input_open.value = '+ Open';
-				input_open.title = 'Open new Timestamp';
-				input_open.classList.add('open_btn');
-				input_open.onclick = function(e) {
-					// if done is checked then prevent opening new timestamp
-					if (this.done === true) return;
-
-					for (var i = 0; i < this.parent.records.length; i++) {
-						if (this.parent.records[i].activeTimestamp !== undefined && this.parent.records[i].guid !== this.guid) {
-							if (this.parent.userSettings.Allow_Open_Action_to_Close.value === true) {
-								this.parent.records[i].closeTimestamp();
-							}
-							else {
-								this.parent.message(
-									'red', 
-									'RECORD CURRENTlY ACTIVE',
-									'There is another record currently active! Only one record can be active at a time.<br><br>Please close the record before trying to open another.',
-									function() {
-										this.parent.findRecord(this.parent.records[i].guid);
-									}.bind(this)
-								);
-								return;
-							}
-						}
-					};
-
-					if (this.activeTimestamp === undefined) {
-						this.openTimestamp();
-					}
-					else {
-						this.closeTimestamp();
-					}
-				}.bind(this);
-			var input_delete = document.createElement('input');
-				input_delete.type = 'button';
-				input_delete.value = '- Delete';
-				input_delete.title = 'Delete selected Timestamps';
-				input_delete.classList.add('delete_btn');
-				input_delete.disabled = 'true';
-				input_delete.onclick = function(e) {
-					// if done is checked then prevent deleting timestamps
-					if (this.done === true) return;
-
-					this.parent.message(
-						'orange', 
-						'DELETE SELECTED TIMESTAMPS', 
-						'Are you sure you want to delete ' + this.selectedTimestamps.length + ' selected Timestamp(s)?<br><br>Press ACCEPT to proceed. All selected timestamps will be permanently deleted.',
-						function() {
-
-							this.deleteTimestamps();
-
-						}.bind(this),
-						true
-					)
-				}.bind(this);
-			var div_doneWrap = document.createElement('div');
-				div_doneWrap.classList.add('done-wrap');
-
-					var label = document.createElement('label');
-						label.innerHTML = 'In Basecamp?';
-						label.htmlFor = 'bc_' + this.guid;
-					var input_checkbox = document.createElement('input');
-						input_checkbox.type = 'checkbox';
-						input_checkbox.tabIndex = -1;
-						input_checkbox.title = 'Yes/No Entered in Basecamp';
-						input_checkbox.id = 'bc_' + this.guid;
-						if (this.done === true) {
-							input_checkbox.checked = true;
-						}
-						input_checkbox.onchange = function(e) {
-
-							if (e.target.checked === true) {
-								this.el.classList.add('done');
-								this.done = true;
-							}
-							else {
-								this.el.classList.remove('done');
-								this.done = false;
-							}
-
-						}.bind(this);
-
-				div_doneWrap.appendChild(label);
-				div_doneWrap.appendChild(input_checkbox);
-
-			div_actions.appendChild(input_open);
-			div_actions.appendChild(input_delete);
-			div_actions.appendChild(div_doneWrap);
-
-		var div_timestamps = document.createElement('div');
-			div_timestamps.classList.add('timestamps');
-
-				var div_empty = document.createElement('div');
-					div_empty.classList.add('empty');
-
-						var p_empty = document.createElement('p');
-							p_empty.innerHTML = 'No Current Timestamps.';
-						var p_empty2 = document.createElement('p');
-							p_empty2.innerHTML = 'Press "+ Open" to create a new Timestamp.';
-
-					div_empty.appendChild(p_empty);
-					div_empty.appendChild(p_empty2);
-
-			div_timestamps.appendChild(div_empty);
-
-		var h3_total = document.createElement('h3');
-			h3_total.classList.add('total');
-
-			var span_rounded = document.createElement('span');
-				span_rounded.classList.add('rounded');
-				span_rounded.innerHTML = this.parent.formatRounded(this.total);
-			var span_actual = document.createElement('span');
-				span_actual.classList.add('actual');
-				span_actual.innerHTML = this.parent.formatActual(this.total);
-
-			h3_total.appendChild(span_rounded);
-			h3_total.appendChild(span_actual);
-
-		div_record.appendChild(h1_name);
-		div_record.appendChild(div_actions);
-		div_record.appendChild(div_timestamps);
-		div_record.appendChild(h3_total);
-
-	if (this.parent.userSettings.Record_Sort.value.selected === 'ASC') {
-		var prevNode = this.parent.record_output.children[0];
-		this.parent.record_output.insertBefore(div_record, prevNode);
-	}
-	else {
-		this.parent.record_output.appendChild(div_record);
-	}
-
-	// define this parameters
-	this.el = div_record;
-	this.timestamp_open = input_open;
-	this.timestamp_delete = input_delete;
-	this.timestamp_output = div_timestamps;
-	
-};
-Record.prototype.openTimestamp = function(guid, from, to) {
-
-	// default values
-	guid = guid || this.parent.guid();
-	from = from || this.timer.start();
-	to = to || undefined;
-	var difference = 0;
-	if (to !== undefined) {
-		difference = to - from;
-	}
-
-	var timestamp = new Timestamp(guid, from, to, difference, this);
-	this.timestamps.push(timestamp);
-
-	if (to === undefined) {
-		this.activeTimestamp = timestamp;
-		this.parent.admin_output.classList.remove('active');
-		this.parent.adminTimer.togglePause();
-		var activeTotal = 0;
-		for (var i = 0; i < this.timestamps.length; i++) {
-			activeTotal += this.timestamps[i].difference;
-		}
-		this.timer.callback = function() {
-			this.activeTimestamp.difference = this.timer.total;
-			this.total = activeTotal + this.timer.total;
-			this.activeTimestamp.displayTotal();
-			this.displayTotal();
-		}.bind(this);
-
-		this.timestamp_open.value = '× Close';
-	}
-
-	this.total += difference;
-	this.displayTotal();
-};
-Record.prototype.closeTimestamp = function() {
-
-	this.activeTimestamp.active = false;
-	this.activeTimestamp.to = this.timer.stop();
-
-	this.activeTimestamp.difference = this.activeTimestamp.to - this.activeTimestamp.from;
-
-	var old_render = this.activeTimestamp.el.remove();
-	this.activeTimestamp.render();
-
-	this.activeTimestamp = undefined;
-
-	this.total = 0;
-	// calculate total for the record
-	for (var i = 0; i < this.timestamps.length; i++) {
-		this.total += this.timestamps[i].difference;
-	}
-	this.displayTotal();
-	this.parent.admin_output.classList.add('active');
-	this.parent.adminTimer.togglePause();
-
-	this.timestamp_open.value = '+ Open';
-
-	this.parent.backup();
-};
-Record.prototype.getTimestampID = function(guid) {
-	for (var i = 0; i < this.timestamps.length; i++) {
-		if (this.timestamps[i].guid === guid) {
-			return i;
-		}
-	}
-};
-Record.prototype.deleteTimestamps = function() {
-	
-	var totalMinus = 0;
-	for (var i = 0; i < this.selectedTimestamps.length; i++) {
-		var id = this.getTimestampID(this.selectedTimestamps[i]);
-		this.timestamps[id].el.remove();
-		totalMinus += this.timestamps[id].difference;
-		this.timestamps.splice(id, 1);
-	}
-
-	// clear selectedTimestamps array
-	this.selectedTimestamps = [];
-
-	// disable button
-	this.timestamp_delete.disabled = 'true';
-
-	// recalculate total
-	this.total -= totalMinus;
-
-	// squashes bug with not turning off selected total and also updates total display
-	this.displayTotal();
-}
-Record.prototype.displayTotal = function() {
-
-	// OnChange of timestamp checkboxes...
-	// Loop through the "selectedTimestamps" array and calculate a total
-	// Display the total onto the record card
-
-	var selectedTotal = 0;
-	for (var i = 0; i < this.selectedTimestamps.length; i++) {
-		var id = this.getTimestampID(this.selectedTimestamps[i]);
-		selectedTotal += this.timestamps[id].difference;
-	}
-
-	if (selectedTotal === 0) {
-
-		// remove selected-total class
-		this.el.querySelector('.total').classList.remove('selected-total');
-
-		// re-display total
-		this.el.querySelector('.total .rounded').innerHTML = this.parent.formatRounded(this.total);
-		this.el.querySelector('.total .actual').innerHTML = this.parent.formatActual(this.total);
-	}
-	else {
-
-		// add selected-total class
-		this.el.querySelector('.total').classList.add('selected-total');
-
-		this.el.querySelector('.total .rounded').innerHTML = this.parent.formatRounded(selectedTotal);
-		this.el.querySelector('.total .actual').innerHTML = this.parent.formatActual(selectedTotal);
-	}
-
-};
-
-// Timestamp Class
-function Timestamp(guid, from, to, difference, parent) {
-	this.guid = guid;
-	this.parent = parent;
-	this.from = from;
-	this.to = to;
-	this.active = (this.to === undefined) ? true : false;
-	this.difference = difference;
-
-	this.render();
-}
-Timestamp.prototype.render = function() {
-
-	// Swap out date format settings
-	var dateOptions = {};
-	if (this.parent.parent.userSettings.Timestamp_Format.value.selected === '24 Hour') {
-		dateOptions = {hour: '2-digit', minute:'2-digit', hour12: false};
-	}
-	else if (this.parent.parent.userSettings.Timestamp_Format.value.selected === '12 Hour') {
-		dateOptions = {hour: '2-digit', minute:'2-digit', hour12: true};
-	}
-
-	var from = this.from.toLocaleTimeString(navigator.language, dateOptions);
-	var to = '...';
-	if (this.to !== undefined) {
-		to = this.to.toLocaleTimeString(navigator.language, dateOptions);
-	}
-
-	var abbrMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-	var date = abbrMonthNames[this.from.getMonth()] + ', ' + this.from.getDate() + ' ' + this.from.getFullYear();
-
-	var active = 'active';
-	if (this.active === false) {
-		active = '';
-	}
-
-	// html template
-	var div_time = document.createElement('div');
-		div_time.classList.add('timestamp');
-		div_time.dataset.timestampId = this.guid;
-
-		var input_checkbox = document.createElement('input');
-			input_checkbox.classList.add('select');
-			input_checkbox.type = 'checkbox';
-			input_checkbox.tabIndex = -1;
-			input_checkbox.onchange = function(e) {
-
-				// Timestamp delete system
-				var index = this.parent.selectedTimestamps.indexOf(this.guid);
-
-				if (e.target.checked === true) {
-					this.parent.selectedTimestamps.push(this.guid);
-				}
-				else {
-					this.parent.selectedTimestamps.splice(index, 1);
-				}
-
-				// hide/show the Delete Button
-				if (this.parent.selectedTimestamps.length < 1) {
-					this.parent.timestamp_delete.disabled = 'true';
-				}
-				else {
-					this.parent.timestamp_delete.disabled = '';
-				}
-
-				// Selective timestamp total
-				this.parent.displayTotal();
-
-			}.bind(this);
-		var span_from = document.createElement('span');
-			span_from.classList.add('from');
-			span_from.innerHTML = from;
-		var span_to = document.createElement('span');
-			span_to.classList.add('to');
-			if (this.active !== false) span_to.classList.add(active);
-			span_to.innerHTML = to;
-		var span_date = document.createElement('span');
-			span_date.classList.add('date');
-			span_date.innerHTML = date;
-		var span_difference = document.createElement('span');
-			span_difference.classList.add('difference');
-
-			var span_rounded = document.createElement('span');
-				span_rounded.classList.add('rounded');
-				span_rounded.innerHTML = this.parent.parent.formatRounded(this.difference);
-			var span_actual = document.createElement('span');
-				span_actual.classList.add('actual');
-				span_actual.innerHTML = this.parent.parent.formatActual(this.difference);
-
-			span_difference.appendChild(span_rounded);
-			span_difference.appendChild(span_actual);
-
-	if (this.active === false) {
-		div_time.appendChild(input_checkbox);
-	}
-	div_time.appendChild(span_from);
-	div_time.appendChild(span_to);
-	div_time.appendChild(span_date);
-	div_time.appendChild(span_difference);
-
-	var prevNode = this.parent.timestamp_output.children[0];
-	this.parent.timestamp_output.insertBefore(div_time, prevNode);
-
-	// define this parameters
-	this.el = div_time;
-};
-Timestamp.prototype.displayTotal = function() {
-	this.el.querySelector('.difference .rounded').innerHTML = this.parent.parent.formatRounded(this.difference);
-	this.el.querySelector('.difference .actual').innerHTML = this.parent.parent.formatActual(this.difference);
-};
