@@ -5,86 +5,64 @@
  *
  */
 
-/* ---- Replace "Default" Box Model with a more intuitive version ---- */
-*,
-*:before,
-*:after {
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
+main {
+	padding: 2rem 1rem;
 }
 
-/* ---- Inherit View-Port Height ---- */
-html,
-body {
-	min-height: 100%;
+/* ---- Buttons ---- */
+button {
+	border: none;
+	background-color: #acacac;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	outline: none;
+	-webkit-transition: all 0.2s;
+	-o-transition: all 0.2s;
+	transition: all 0.2s;
 }
 
-/* ---- Pair JavaScript Breakpoints w/ CSS Breakpoints ---- */
-body:after {
-	content: 'nano';
-	display: none;
-}
-@media screen and (min-width: 480px) {
-	body:after {
-		content: 'x-small';
-	}
-}
-@media screen and (min-width: 640px) {
-	body:after {
-		content: 'small';
-	}
-}
-@media screen and (min-width: 768px) {
-	body:after {
-		content: 'medium';
-	}
-}
-@media screen and (min-width: 960px) {
-	body:after {
-		content: 'large';
-	}
-}
-@media screen and (min-width: 1170px) {
-	body:after {
-		content: 'x-large';
-	}
+button:hover,
+button:focus,
+button:active {
+	-webkit-box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, .5);
+	box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, .5);
 }
 
-/* ---- Global Elements ---- */
-body {
-	background-color: #fff;
-	font-size: 1rem;
-	-webkit-font-smoothing: antialiased;
-	font-weight: 400;
-	line-height: 1;
-	text-align: left;
+	/* Button Treatments */
+	button.icon {
+		color: inherit;
+		border: none;
+		outline: none;
+		background-color: transparent;
+		font-weight: normal;
+		padding: 0 0.5rem;
+	}
+	button.icon:focus,
+	button.icon:hover {
+		-webkit-box-shadow: none;
+		box-shadow: none;
+	}
+
+/* ---- Project Styles ---- */
+.project {
+	width: 100%;
+	border: 1px solid #e1e1e1;
 }
 
-address,
-blockquote,
-dl,
-fieldset,
-figure,
-form,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-menu,
-ol,
-p,
-pre,
-summary,
-table,
-ul {
-	margin: 0;
-	margin-bottom: 1rem;
-}
+	/* Header */
+	.project header {
+		background-color: #f8f8f8;
+		padding: 1rem;
+	}
 
-/* ---- Forms / Input ---- */
-[disabled] {
-	cursor: not-allowed;
-}
+		.project header h2 {
+			display: inline-block;
+			margin: 0;
+		}
+
+	/* Navigation (Toolbar) */
+	.project nav {
+		padding: 0.5rem 1rem;
+		border-top: 3px double #e1e1e1;
+		border-bottom: 3px double #e1e1e1;
+	}
