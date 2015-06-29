@@ -2,16 +2,33 @@
 <html lang="en" ng-app="TimeKeeper">
 <head>
 	<meta charset="UTF-8">
-	<title>TK - Angular Tests</title>
+	<title>TimeKeeper - Development</title>
 </head>
 <body ng-controller="TimeKeeperController">
 	
+	<!-- start= Header -->
+	<header>
+		<!-- start= Navigation/Toolbar -->
+		<nav></nav>
+		<!-- end= Navigation/Toolbar -->
+	</header>
+	<!-- end= Header -->
 	
+	<!-- start= Main Content -->
+	<main>
+		{{time | date: 'mm:ss'}}
+	</main>
+	<!-- end= Main Content -->
 	
-	<!-- JavaScript Scripts -->
+	<!-- start= Footer -->
+	<footer></footer>
+	<!-- end= Footer -->
+	
+	<!-- JavaScript Files -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.16/angular.min.js"></script>
 	<script src="js/application.js"></script>
 	<script src="js/services.js"></script>
 	<script src="js/controller.js"></script>
+	<script src="js/directives.js"></script>
 </body>
 </html>
