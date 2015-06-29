@@ -1,0 +1,90 @@
+/**
+ * TimeKeeper by Max Hegler, 2015
+ * Version: 0.1.0-beta
+ * ================================================================================
+ *
+ */
+
+/* ---- Replace "Default" Box Model with a more intuitive version ---- */
+*,
+*:before,
+*:after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+/* ---- Inherit View-Port Height ---- */
+html,
+body {
+	min-height: 100%;
+}
+
+/* ---- Pair JavaScript Breakpoints w/ CSS Breakpoints ---- */
+body:after {
+	content: 'nano';
+	display: none;
+}
+@media screen and (min-width: 480px) {
+	body:after {
+		content: 'x-small';
+	}
+}
+@media screen and (min-width: 640px) {
+	body:after {
+		content: 'small';
+	}
+}
+@media screen and (min-width: 768px) {
+	body:after {
+		content: 'medium';
+	}
+}
+@media screen and (min-width: 960px) {
+	body:after {
+		content: 'large';
+	}
+}
+@media screen and (min-width: 1170px) {
+	body:after {
+		content: 'x-large';
+	}
+}
+
+/* ---- Global Elements ---- */
+body {
+	background-color: #fff;
+	font-size: 1rem;
+	-webkit-font-smoothing: antialiased;
+	font-weight: 400;
+	line-height: 1;
+	text-align: left;
+}
+
+address,
+blockquote,
+dl,
+fieldset,
+figure,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+menu,
+ol,
+p,
+pre,
+summary,
+table,
+ul {
+	margin: 0;
+	margin-bottom: 1rem;
+}
+
+/* ---- Forms / Input ---- */
+[disabled] {
+	cursor: not-allowed;
+}
