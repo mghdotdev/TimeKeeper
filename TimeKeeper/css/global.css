@@ -66,6 +66,7 @@ body:after {
 
 /* ---- Global Elements ---- */
 body {
+	font-family: 'Roboto', sans-serif;
 	background-color: #fff;
 	font-size: 1rem;
 	-webkit-font-smoothing: antialiased;
@@ -98,6 +99,16 @@ ul {
 }
 
 /* ---- Forms / Input ---- */
+label,
+button,
+input[type="file"],
+input[type="button"],
+input[type="submit"] {
+	cursor: pointer;
+}
+
 [disabled] {
 	cursor: not-allowed;
 }
+
+
