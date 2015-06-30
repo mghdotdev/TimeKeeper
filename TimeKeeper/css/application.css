@@ -1,0 +1,68 @@
+/**
+ * TimeKeeper by Max Hegler, 2015
+ * Version: 0.1.0-beta
+ * ================================================================================
+ *
+ */
+
+main {
+	padding: 2rem 1rem;
+}
+
+/* ---- Buttons ---- */
+button {
+	border: none;
+	background-color: #acacac;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	outline: none;
+	-webkit-transition: all 0.2s;
+	-o-transition: all 0.2s;
+	transition: all 0.2s;
+}
+
+button:hover,
+button:focus,
+button:active {
+	-webkit-box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, .5);
+	box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, .5);
+}
+
+	/* Button Treatments */
+	button.icon {
+		color: inherit;
+		border: none;
+		outline: none;
+		background-color: transparent;
+		font-weight: normal;
+		padding: 0 0.5rem;
+	}
+	button.icon:focus,
+	button.icon:hover {
+		-webkit-box-shadow: none;
+		box-shadow: none;
+	}
+
+/* ---- Project Styles ---- */
+.project {
+	width: 100%;
+	border: 1px solid #e1e1e1;
+}
+
+	/* Header */
+	.project header {
+		background-color: #f8f8f8;
+		padding: 1rem;
+	}
+
+		.project header h2 {
+			display: inline-block;
+			margin: 0;
+		}
+
+	/* Navigation (Toolbar) */
+	.project nav {
+		padding: 0.5rem 1rem;
+		border-top: 3px double #e1e1e1;
+		border-bottom: 3px double #e1e1e1;
+	}
