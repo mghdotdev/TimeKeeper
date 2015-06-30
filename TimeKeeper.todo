@@ -1,0 +1,57 @@
+TODO
+----------------------
+!!! 1. remove record functionality
+- 2. selective import
+- 3. visual change for checked Basecamp? records
+- 4. once error message for empty record -> focus back on the Record Name input
+- 5. add download message to PDF download button
+- 6. click .fade div to close() message box
+- 7. add 75% width to the h1.name field
+- 8. make a new Basecamp? button / checkbox
+- 9. Finish "remove timestamp" functionality
+// 10. Re-evaluate the Find / Add toolbar... (Design AND functionality)
+- 11. When a Timestamp is opened, add an error box when trying to open a new Timestamp
+- 12. Add warning dialog for Timestamp delete
+// 13. Add reset sheet / restyle css
+- 14. Add dates to Timestamps (style ex: @Jan 7, 2015)
+- 15. Change title attribute of "In Basecamp?" checkbox
+- 16. Add Welcome Message
+- 17. Add settings configuration system
+- 18. Link settings object options to actual interactions in the App and updated them live.
+- 19. Dynamic settings updates, check for new version and update only unedited setting
+- 20. Dual input for search and add. On key up Record Name input fuzzy search results. Can add record from input
+- 21. Timestamp "weclome message", (before timestamps are added, instructional)
+- 22. Added favicon for non-chrome app version
+- 23. Revamped searching, now it is controled through the "Find" button or super+F
+- 24. Added more keybindings (super+I, super+E, super+N)
+! 25. Restructure and organize CSS / JS files
+- 26. add reset settings button to settings box
+- 27. re-add the selected totals
+- 28. Change the export file format, remove totals and differences 
+
+BUGS
+----------------------
+- 1. "Empty Record Name" alert, if not valid [a-z0-9] it says record input is empty. BUT its not
+- 2. Basecamp? checkbox not loading from import
+- 3. allow text to be selectable in-app
+- 4. disable events after Basecamp? checkbox
+- 5. Fix the breakage when you export whilst a timestamp is active.
+- 6. Import does not allow the "remove timestamp" functionality. (events missing?)
+- 7. CSS issue with Find button on Win/OSX... inconsistant padding due to spec. character
+- 8. Fix issue with "Find" function not working due to new GUID update
+- 9. "In Basecamp?" Button not carrying style over for re-imported record.
+- 10. Fix issue of either overwriting the records array or appending it... display appends | class overwrites
+- 11. Fixed max-height issue on Message Box div
+- 12. while applying admin time on/off the ASC/DESC bugs out, showing the welcome message
+// 13. Safari's weird localeTimeString suff needs to be taken care of
+- 14. Timestamps delete feature does not accuratly remove totals
+- 15. apply the line-height hack to the h3 total on records
+- 16. SEVERE ISSUE WITH TOTALS NOT DISPLAYING PROPERLY
+- 17. Tab order for settings page, reset button seems to be messing with it
+- 18. When importing whilst Timestamp is active, "x Close" button needs to be swapped to "+ Open"
+19. Throw an error when pressing "In Basecamp?" while a record is active.
+
+-------------------------------
+- = done | ! = important
+
+https://chrome.google.com/webstore/detail/timekeeper/ebjokhpppclkghmfnacfjdpfjmmgeddg
