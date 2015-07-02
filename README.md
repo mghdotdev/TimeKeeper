@@ -1,4 +1,4 @@
 # TimeKeeper
 
 ### Development
-TimeKeeper is currently in active development. To reference the previous version, see branch `v2.3.2`
+TimeKeeper is currently in active development. To reference the previous version, see branch [master](https://github.com/mghweb/TimeKeeper/tree/master)
