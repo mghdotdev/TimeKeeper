@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>TimeKeeper 2</title>
+	</head>
+	<body>
+		
+
+		<main data-ng-app="TimeKeeper">
+			
+			<aside data-ng-controller="ProjectsController">
+				
+				<ul>
+					<li data-ng-repeat="project in projects">
+						{{ project.name }}
+					</li>
+				</ul>
+
+			</aside>
+
+			<nav data-ng-controller="UserController">
+				<button data-ng-click="authorize()">Login with Basecamp</button>
+			</nav>
+
+		</main>
+
+		
+
+
+	</body>
+
+	<script>
+		// Angular 1.x.x
+		require('angular');
+
+		// Application
+		require('./app.js');
+	</script>
+</html>
